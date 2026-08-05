@@ -7870,6 +7870,69 @@ a.anchor-link {
 }
 #rf-back-link:hover { border-color: var(--jp-content-link-color, #4fb8a3); background: var(--jp-layout-color2, #1c2128); }
 </style>
+<style type="text/css">
+/* === Modo lectura: columna centrada tipo documento, sin cascaron de celda ===
+   El template "lab" de nbconvert imita la UI de JupyterLab (celdas con borde,
+   prompts In[]/Out[], ancho completo) — aca se reestiliza para que se lea como
+   un reporte/documento (mas parecido a un notebook renderizado en VS Code o a
+   un R Notebook), sin tocar la estructura HTML. */
+body.jp-Notebook, div#notebook-container, main {
+  max-width: 880px !important;
+  margin: 0 auto !important;
+  padding: 32px 24px 96px !important;
+  background: var(--jp-layout-color0, #0f1115) !important;
+}
+.jp-Notebook-cell {
+  margin: 0 0 0.4rem !important;
+}
+.jp-Cell {
+  padding: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+.jp-Cell-inputWrapper, .jp-Cell-outputWrapper {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+.jp-InputPrompt, .jp-OutputPrompt {
+  display: none !important;
+}
+.jp-InputArea, .jp-OutputArea-child {
+  width: 100% !important;
+}
+.jp-CodeMirrorEditor {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid var(--jp-border-color1, #3a3f4b);
+}
+.jp-CodeMirrorEditor pre, .jp-RenderedText pre {
+  padding: 14px 18px !important;
+  font-size: 0.85rem !important;
+  line-height: 1.5 !important;
+  border-radius: 8px;
+}
+.jp-RenderedText pre, .jp-OutputArea-output pre {
+  background: var(--jp-layout-color1, #171a21) !important;
+  border: 1px solid var(--jp-border-color2, #2a2e39);
+}
+.jp-RenderedHTMLCommon {
+  font-size: 1rem !important;
+  line-height: 1.65 !important;
+}
+.jp-RenderedHTMLCommon h1 { font-size: 1.9rem; margin: 2.2rem 0 1rem; }
+.jp-RenderedHTMLCommon h2 { font-size: 1.4rem; margin: 2rem 0 0.8rem; border-bottom: 1px solid var(--jp-border-color2, #2a2e39); padding-bottom: 0.4rem; }
+.jp-RenderedHTMLCommon h3 { font-size: 1.15rem; margin: 1.6rem 0 0.6rem; }
+.jp-RenderedHTMLCommon p, .jp-RenderedHTMLCommon li { margin: 0.5rem 0; }
+.jp-RenderedImage img, .jp-OutputArea-output img {
+  border-radius: 8px;
+  max-width: 100%;
+}
+.jp-RenderedHTMLCommon table {
+  margin: 0.8rem 0;
+}
+</style>
 </head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light">
 <main>
