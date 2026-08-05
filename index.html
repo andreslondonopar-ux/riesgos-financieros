@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Riesgos — Gestión de Riesgos Financieros</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --card-bg: #181b21;
+    --border: #2a2e37;
+    --text: #e0e0e0;
+    --text-dim: #9aa0aa;
+    --accent: #4da3ff;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  header {
+    padding: 48px 24px 24px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  header h1 {
+    margin: 0 0 8px;
+    font-size: 1.8rem;
+  }
+  header p {
+    color: var(--text-dim);
+    margin: 0;
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 24px 64px;
+  }
+  h2.section-title {
+    font-size: 1.1rem;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 40px 0 16px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px 24px;
+    margin-bottom: 16px;
+  }
+  .card h3 {
+    margin: 0 0 6px;
+    font-size: 1.15rem;
+  }
+  .card p.desc {
+    color: var(--text-dim);
+    margin: 0 0 14px;
+    font-size: 0.95rem;
+  }
+  .links a {
+    display: inline-block;
+    color: var(--accent);
+    text-decoration: none;
+    background: rgba(77,163,255,0.08);
+    border: 1px solid rgba(77,163,255,0.3);
+    padding: 6px 14px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    margin: 4px 8px 4px 0;
+  }
+  .links a:hover {
+    background: rgba(77,163,255,0.18);
+  }
+  .pending {
+    color: var(--text-dim);
+    font-style: italic;
+    font-size: 0.95rem;
+    padding: 4px 0;
+  }
+  footer {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 24px;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>📊 Riesgos — Gestión de Riesgos Financieros</h1>
+  <p>Código de clase explicado en notebooks (Python), organizado por tema conforme avanza el semestre.</p>
+</header>
+
+<main>
+
+  <h2 class="section-title">Temas</h2>
+
+  <div class="card">
+    <h3>1. Fundamentos de Python</h3>
+    <p class="desc">Variables, valor futuro, listas, condicionales — lo mínimo de Python para seguir el resto de la clase.</p>
+    <div class="links">
+      <a href="fundamentos-python/">📘 Ver notebook</a>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2. Rendimiento y riesgo — Estadística de retornos</h3>
+    <p class="desc">Descarga de precios, cálculo de retornos (y cambio de frecuencia), medidas estadísticas básicas, prueba de normalidad, intervalo de confianza de la media, y correlación entre activos.</p>
+    <div class="links">
+      <a href="rendimiento-riesgo/">📘 Ver notebook</a>
+    </div>
+  </div>
+
+  <div class="card" style="opacity:0.5;">
+    <h3>3. Próximo tema</h3>
+    <p class="pending">Pendiente — se agrega cuando avancemos en clase.</p>
+  </div>
+
+</main>
+
+<footer>
+  Material de apoyo personal para el curso, ICESI · repo:
+  <a href="https://github.com/andreslondonopar-ux/riesgos-financieros" style="color:var(--accent);">riesgos-financieros</a>
+</footer>
+
+</body>
+</html>
