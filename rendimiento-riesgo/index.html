@@ -7801,7 +7801,11 @@ a.anchor-link {
    prompts In[]/Out[], ancho completo) — aca se reestiliza para que se lea como
    un reporte/documento (mas parecido a un notebook renderizado en VS Code o a
    un R Notebook), sin tocar la estructura HTML. */
-body.jp-Notebook, div#notebook-container, main {
+body.jp-Notebook {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+main, div#notebook-container {
   max-width: 940px !important;
   margin: 0 auto !important;
   padding: 32px 24px 96px !important;
@@ -7910,7 +7914,7 @@ body.jp-Notebook, div#notebook-container, main {
 </div>
 </div>
 </div>
-<div class="jp-Cell-outputWrapper">
+<details style="margin:0.5rem 0;"><summary style="cursor:pointer;color:#666;font-size:0.85rem;">Ver resultado completo (8030 caracteres, colapsado por ser muy extenso)</summary><div class="jp-Cell-outputWrapper">
 <div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
@@ -7973,7 +7977,7 @@ Requirement already satisfied: mdurl~=0.1 in C:\Users\Andres Londoño P\AppData\
 </div>
 </div>
 </div>
-</div>
+</div></details>
 </div><div class="jp-Cell jp-CodeCell jp-Notebook-cell jp-mod-noOutputs">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
