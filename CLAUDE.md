@@ -11,8 +11,10 @@ memoria ni histórico de conversación.
 - `index.html` — landing page (mismo estilo visual que usa `TO`/`tecnicas-de-optimizacion`:
   tema oscuro, cards por tema, se va agregando conforme avanza el semestre).
 - `fundamentos-python/` — `Basicos_Python.ipynb` (fuente) + `index.html` (export HTML,
-  tema oscuro + código colapsable + botón volver al índice).
-- `rendimiento-riesgo/` — `Rendimiento_y_riesgo.ipynb` (fuente) + `index.html` (export).
+  tema claro por defecto de Jupyter + banner simple de vuelta al índice — mismo estilo
+  que `TO`/`tecnicas-de-optimizacion`, sin código colapsable).
+- `rendimiento-riesgo/` — `Rendimiento_y_riesgo.ipynb` (fuente) + `index.html` (export,
+  mismo estilo simple que `fundamentos-python/`).
 - **Fuente original de los notebooks**: `OneDrive\Documentos\ICESI\8vo Semestre\Riesgos\Practica\`
   (ahí es donde el usuario los va escribiendo/editando en clase). Este repo tiene una
   copia ejecutada y publicable — cuando se agregue o edite un notebook ahí, hay que
@@ -45,11 +47,10 @@ carpeta protegida.
    JSON crudo no representable). Mismo bug ya documentado en `daily_strategy_papers`.
 4. Ejecutar: `py -m jupyter nbconvert --to notebook --execute --inplace "<archivo>.ipynb"`
 5. Convertir a HTML: `py -m jupyter nbconvert --to html "<archivo>.ipynb" --output index.html`
-6. Aplicar el override de estilo (tema oscuro + código colapsable + botón volver) — el
-   bloque exacto de CSS/JS a inyectar antes de `</head>`/`</body>` está en cualquier
-   `index.html` ya publicado de este repo (buscar `rf-code-toggle`, `rf-back-link`) o en
-   el equivalente de QUANT (`reports/*.html`, buscar `quant-code-toggle`) — mismo patrón,
-   solo cambia el prefijo `rf-` en vez de `quant-`.
+6. Agregar solo un banner simple de vuelta al índice (mismo estilo que `TO`, un `<div>`
+   con fondo oscuro `#0f1115` y un link, insertado justo después de `<body>` — NO aplicar
+   el patrón de tema oscuro completo / código colapsable de QUANT, se probó y se
+   revirtió a pedido del usuario: quería que este repo se viera como `TO`, no al revés).
 7. Agregar una card nueva en `index.html` (raíz) apuntando a la carpeta nueva.
 8. `git add`, commit, `git push` — GitHub Pages se sirve desde `main` / raíz, se
    actualiza solo en 1-2 minutos tras el push.
@@ -62,3 +63,9 @@ carpeta protegida.
 - `Rendimiento_y_riesgo.ipynb` descarga datos en vivo de Yahoo Finance vía `yfinance` —
   si Yahoo cambia algo o el activo/rango cambia entre corridas, los números del HTML
   publicado pueden no coincidir exactamente con una re-ejecución futura.
+- **El tema oscuro + código colapsable (patrón `rf-code-toggle`/`rf-back-link`,
+  heredado de QUANT) se probó pero se revirtió** — el usuario pidió que este repo se
+  viera como `TO`/`tecnicas-de-optimizacion` estaba originalmente (tema claro por
+  defecto de Jupyter + un banner simple, no sticky, sin código colapsable), no que
+  `TO` adoptara el estilo de acá. Si se agrega un notebook nuevo, seguir el paso 6 de
+  "Cómo publicar" (banner simple), no reintroducir el patrón oscuro.
