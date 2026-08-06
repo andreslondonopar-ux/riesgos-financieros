@@ -8,7 +8,7 @@ memoria ni histórico de conversación.
 
 ## Estructura
 
-- `index.html` — landing page (mismo estilo visual que usa `TO`/`simulaciones-montecarlo-r`:
+- `index.html` — landing page (mismo estilo visual que usa `TO`/`tecnicas-de-optimizacion`:
   tema oscuro, cards por tema, se va agregando conforme avanza el semestre).
 - `fundamentos-python/` — `Basicos_Python.ipynb` (fuente) + `index.html` (export HTML,
   tema oscuro + código colapsable + botón volver al índice).
