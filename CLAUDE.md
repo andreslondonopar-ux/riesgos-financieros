@@ -15,6 +15,20 @@ memoria ni histórico de conversación.
   que `TO`/`tecnicas-de-optimizacion`, sin código colapsable).
 - `rendimiento-riesgo/` — `Rendimiento_y_riesgo.ipynb` (fuente) + `index.html` (export,
   mismo estilo simple que `fundamentos-python/`).
+- `trabajo-retornos-riesgo/` — solución del taller real (`Taller
+  Trabajo-retornos-y-riesgo.pdf`, agosto 2026): `Trabajo Retornos y Riesgo.ipynb`
+  (fuente) + `index.html`. Aplica todo lo de `rendimiento-riesgo/` a 5 acciones
+  reales elegidas deliberadamente de sectores distintos (AAPL tecnología, JPM
+  financiero, XOM energía, KO consumo, JNJ salud — para que la matriz de
+  correlaciones tenga variedad genuina que analizar, no 5 tecnológicas
+  correlacionadas entre sí), mensual, últimos 10 años: retornos discretos y
+  continuos, estadísticas descriptivas, histogramas, prueba de Jarque-Bera
+  (H0/H1 explícitas + conclusión), intervalo de confianza al 95% de la media, y
+  matriz de correlaciones + mapa de calor. Publicado como botón "📝 Trabajo
+  (taller)" dentro de la misma card "2. Rendimiento y riesgo" del hub (no como
+  tema nuevo — es una aplicación del mismo tema, mismo criterio ya usado en
+  `TO`/`tecnicas-de-optimizacion` para no separar taller y teoría cuando
+  comparten unidad conceptual).
 - **Fuente original de los notebooks**: `OneDrive\Documentos\ICESI\8vo Semestre\Riesgos\Practica\`
   (ahí es donde el usuario los va escribiendo/editando en clase). Este repo tiene una
   copia ejecutada y publicable — cuando se agregue o edite un notebook ahí, hay que
