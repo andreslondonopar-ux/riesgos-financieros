@@ -89,6 +89,22 @@ aTSA::pp.test(diff(log(colcap_ts)))
 aTSA::adf.test(colcap_ret)
 aTSA::pp.test(colcap_ret)
 
+#' Como apoyo visual a las pruebas formales (y porque es la misma
+#' herramienta que se usa después para identificar p y q), se grafican
+#' ACF y PACF de esta misma serie estacionaria — es la misma serie que
+#' alimenta tanto el modelo de precio (vía log+diferencia) como el de
+#' retorno, así que este ACF/PACF sirve para ambos.
+forecast::Acf(colcap_ret, main = "ACF - COLCAP (retorno mensual)")
+forecast::Pacf(colcap_ret, main = "PACF - COLCAP (retorno mensual)")
+
+#' **Lectura del gráfico:** con 67 observaciones, la banda de confianza al
+#' 95% ronda ±0.24. Ningún rezago de la ACF ni de la PACF se sale
+#' claramente de esa banda — el más cercano es el rezago 4 de la PACF
+#' (-0.26). Es una señal débil, consistente con que el modelo final
+#' (sección 3) resulte en un MA(2) donde solo uno de los dos coeficientes
+#' es significativo: no hay un patrón visual contundente, por eso se
+#' delega la decisión final a `auto.arima()` en vez de fijar p/q a ojo.
+#'
 #' **BTC-USD — precio.** Sobre el nivel, ADF y PP no rechazan la raíz
 #' unitaria en ninguna especificación (p-valores todos > 0.5) — no
 #' estacionaria, de forma incluso más clara que COLCAP. Igual que con
@@ -105,6 +121,17 @@ aTSA::pp.test(diff(log(btc_ts)))
 aTSA::adf.test(btc_ret)
 aTSA::pp.test(btc_ret)
 
+#' Igual que con COLCAP, se grafican ACF y PACF de la serie estacionaria
+#' (sirve tanto para el modelo de precio como el de retorno).
+forecast::Acf(btc_ret, main = "ACF - BTC-USD (retorno mensual)")
+forecast::Pacf(btc_ret, main = "PACF - BTC-USD (retorno mensual)")
+
+#' **Lectura del gráfico:** con la misma banda de ±0.24, **ningún rezago
+#' de la ACF ni de la PACF se sale de la banda** en ningún punto hasta el
+#' rezago 12 — a diferencia de COLCAP, ni siquiera hay un candidato
+#' "cercano". Es la confirmación visual de que el modelo final (sección
+#' 3) es ruido blanco puro: no hay ningún patrón que identificar.
+#'
 #' ## 3. Estimación
 #'
 #' Para las 4 series (COLCAP precio, COLCAP retorno, BTC precio, BTC
