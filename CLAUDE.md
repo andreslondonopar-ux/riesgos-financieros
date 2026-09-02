@@ -1,7 +1,8 @@
 # riesgos-financieros — 8vo Semestre (ICESI)
 
 Material de la clase de Gestión de Riesgos Financieros. Código en Python (Jupyter
-notebooks) para practicar en clase, publicado como GitHub Pages.
+notebooks) y, desde el tema de series de tiempo, también en R (scripts `.R` con
+`knitr::spin()`), publicado como GitHub Pages.
 
 **Este proyecto es independiente de `c:\QUANT` y de `TO`** — no comparten contexto,
 memoria ni histórico de conversación.
@@ -29,11 +30,22 @@ memoria ni histórico de conversación.
   tema nuevo — es una aplicación del mismo tema, mismo criterio ya usado en
   `TO`/`tecnicas-de-optimizacion` para no separar taller y teoría cuando
   comparten unidad conceptual).
-- **Fuente original de los notebooks**: `OneDrive\Documentos\ICESI\8vo Semestre\Riesgos\Practica\`
-  (ahí es donde el usuario los va escribiendo/editando en clase). Este repo tiene una
-  copia ejecutada y publicable — cuando se agregue o edite un notebook ahí, hay que
-  volver a copiarlo aquí, ejecutarlo y regenerar el HTML (ver "Cómo publicar un notebook
-  nuevo" abajo).
+- `series-de-tiempo/` — `Series de tiempo.R` (fuente) + `Setup/Pruebas residuales
+  ARIMA.R` (funciones auxiliares `tabla.Box.Pierce`/`tabla.ARCH.LM` que el script
+  principal carga con `source("Setup/...")` — por eso hay que conservar esa
+  subcarpeta exacta, no aplanar) + `index.html` (export). Descomposición de
+  `AirPassengers`, pruebas de raíz unitaria (ADF/PP/KPSS), diferenciación/
+  transformación log, identificación ACF/PACF, ARIMA manual y `auto.arima`,
+  diagnóstico de residuales (Ljung-Box, ARCH-LM, Jarque-Bera, QQ-plot) y
+  pronóstico. Primer contenido en R del repo — ver "Cómo publicar código en R"
+  abajo, es un flujo distinto al de los notebooks Python.
+- **Fuente original de los notebooks Python**: `OneDrive\Documentos\ICESI\8vo
+  Semestre\Riesgos\Practica\` (ahí es donde el usuario los va escribiendo/editando
+  en clase). **Fuente original de los scripts R**: `OneDrive\...\Riesgos\Practica
+  series de tiempo\Practica series de tiempo\`. Este repo tiene una copia ejecutada
+  y publicable — cuando se agregue o edite algo ahí, hay que volver a copiarlo
+  aquí, ejecutarlo y regenerar el HTML (ver las dos secciones "Cómo publicar"
+  abajo, una por lenguaje).
 
 ## Por qué este repo NO vive dentro de OneDrive
 
@@ -68,6 +80,40 @@ carpeta protegida.
 7. Agregar una card nueva en `index.html` (raíz) apuntando a la carpeta nueva.
 8. `git add`, commit, `git push` — GitHub Pages se sirve desde `main` / raíz, se
    actualiza solo en 1-2 minutos tras el push.
+
+## Cómo publicar código en R (distinto del flujo de notebooks Python)
+
+1. Copiar el/los `.R` desde `OneDrive\...\Riesgos\Practica series de tiempo\...\`
+   (o donde viva el tema nuevo) a una carpeta nueva dentro de este repo
+   (kebab-case), **preservando cualquier subcarpeta que un `source(...)` del
+   script espere** (ej. `Setup/`) — no aplanar la estructura de carpetas del
+   script original.
+2. Verificar/instalar los paquetes de R que use el script
+   (`Rscript -e 'install.packages(c("pkg1","pkg2"), repos="https://cloud.r-project.org")'`);
+   el propio script suele traer `pacman::p_load(...)` que auto-instala lo que
+   falte, pero es más confiable pre-instalar antes de knitear.
+3. **Pandoc no viene instalado con R base** (`rmarkdown::render()` a HTML lo
+   necesita) — si `rmarkdown::pandoc_available()` da `FALSE`, descargar el zip
+   de Windows desde `github.com/jgm/pandoc/releases/latest`, extraerlo a una
+   carpeta temporal, y apuntar `Sys.setenv(RSTUDIO_PANDOC = "<carpeta con
+   pandoc.exe>")` antes de renderizar (no hace falta un instalador con permisos
+   de administrador).
+4. Convertir el `.R` a reporte con `knitr::spin(hair = "<archivo>.R", knit =
+   FALSE)` (genera el `.Rmd`) y `rmarkdown::render(...)` a `index.html`
+   (`output_format = html_document(toc = TRUE, toc_float = TRUE, theme =
+   "flatly")`, mismo tema en los reportes de R de este repo) — hay que correr
+   con el working directory puesto en la carpeta del script (`setwd(...)`),
+   para que los `source()` relativos del script (ej. `Setup/...`) resuelvan
+   bien. Si el script no tiene comentarios `#'` estilo roxygen para separar
+   texto de código, `spin()` genera un único chunk grande — no es un problema,
+   cada `plot()`/`autoplot()`/`print()` del chunk igual genera su propia figura
+   o salida en el HTML final, en el mismo orden en que se ejecutan.
+5. Insertar el mismo banner simple de vuelta al índice que los reportes Python
+   (ver paso 6 de "Cómo publicar un notebook nuevo" arriba) justo después de
+   `<body>` — el HTML de `rmarkdown::render` con tema `flatly` no lo trae por
+   defecto.
+6. Agregar una card nueva en `index.html` (raíz) apuntando a la carpeta nueva.
+7. `git add`, commit, `git push`.
 
 ## Notas de trabajo
 
