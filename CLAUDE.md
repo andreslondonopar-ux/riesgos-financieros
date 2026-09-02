@@ -39,6 +39,23 @@ memoria ni histórico de conversación.
   diagnóstico de residuales (Ljung-Box, ARCH-LM, Jarque-Bera, QQ-plot) y
   pronóstico. Primer contenido en R del repo — ver "Cómo publicar código en R"
   abajo, es un flujo distinto al de los notebooks Python.
+- `taller-series-de-tiempo/` — `Taller series de tiempo.R` (fuente, con YAML
+  `output: pdf_document / html_document` al inicio del bloque roxygen) + `Setup/`
+  (misma función auxiliar copiada) + `data/colcap_daily.csv` (histórico diario
+  COLCAP, ver nota de la fuente abajo) + `index.html` (export) + `Taller series
+  de tiempo.pdf` (el entregable real del taller, generado con `pdf_document(latex_engine
+  = "xelatex")` — **no uses el `pdflatex` por defecto**, no soporta caracteres
+  Unicode como tildes/≤/— directamente, y falla a mitad de compilación). Taller
+  real (`OneDrive\...\Riesgos\Taller Series de Tiempo\Taller-series-de-tiempo.pdf`):
+  identificación + estimación + validación + pronóstico de un ARIMA sobre COLCAP
+  y Bitcoin, en precio y en retorno mensual (4 series completas), 2021-01 a
+  2026-08. **Fuente del histórico de COLCAP**: no hay ticker de Yahoo Finance
+  para COLCAP — se encontró el histórico diario completo (2008-hoy, fuente BVC)
+  en la API pública (sin autenticación) del Banco de la República:
+  `https://suameca.banrep.gov.co/estadisticas-economicas-back/rest/estadisticaEconomicaRestService/consultaMenuXId?idMenu=2500`
+  (requiere header `Referer` apuntando a la página `suameca.banrep.gov.co` de la
+  serie, si no responde vacío) — devuelve JSON con `data: [[timestamp_ms, valor], ...]`.
+  Bitcoin sí viene de Yahoo (`quantmod::getSymbols("BTC-USD")`).
 - **Fuente original de los notebooks Python**: `OneDrive\Documentos\ICESI\8vo
   Semestre\Riesgos\Practica\` (ahí es donde el usuario los va escribiendo/editando
   en clase). **Fuente original de los scripts R**: `OneDrive\...\Riesgos\Practica
@@ -114,6 +131,30 @@ carpeta protegida.
    defecto.
 6. Agregar una card nueva en `index.html` (raíz) apuntando a la carpeta nueva.
 7. `git add`, commit, `git push`.
+8. **Si además hay que entregar un PDF** (ej. un taller real, no solo el
+   reporte del hub): agregar un bloque YAML al inicio del bloque roxygen
+   (`#' ---` / `#' title: "..."` / `#' author: "..."` / `#' output:` con
+   `pdf_document:` y `html_document:` / `#' ---`) y renderizar dos veces,
+   una por formato (`output_format = html_document(...)` y
+   `output_format = pdf_document(latex_engine = "xelatex")`). **Usar
+   `latex_engine = "xelatex"`, no el `pdflatex` por defecto** — pdflatex
+   no soporta caracteres Unicode (tildes, ≤, —, subíndices) sin paquetes
+   extra y falla a mitad de compilación con "Unicode character not set up
+   for use with LaTeX". La primera vez que se instala tinytex puede hacer
+   falta `mktexlsr` (`C:/ProgramData/TinyTeX/bin/windows/mktexlsr.exe`)
+   para que pdflatex/xelatex encuentren paquetes recién verificados como
+   ya instalados (`tlmgr install` decía "already present" pero
+   `! LaTeX Error: File 'X.sty' not found` igual, típico tras instalar
+   tinytex por primera vez — reindexar la base de nombres lo arregla).
+9. **Gotcha de `spin()` que rompe secciones silenciosamente**: una línea
+   en blanco entre dos bloques `#'` (párrafo → encabezado, o párrafo →
+   párrafo) **debe ser `#'` sola, no una línea vacía sin el prefijo** — si
+   no, pandoc fusiona el texto siguiente con el párrafo anterior en vez de
+   crear una sección/párrafo nuevo, y el encabezado desaparece del TOC sin
+   ningún error visible. Antes de dar un reporte por terminado, contar que
+   el número de `<h2>`/secciones en el HTML final coincida con los
+   encabezados `## N. ...` del script — no asumir que si `spin()`/
+   `render()` corrieron sin error, el resultado está completo.
 
 ## Notas de trabajo
 
