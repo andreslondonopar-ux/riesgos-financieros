@@ -8,7 +8,7 @@
 #' no son del script original de clase — se agregaron aparte para que el
 #' reporte se pueda leer paso a paso sin tener que interpretar el código
 #' ni los gráficos línea por línea.
-
+#'
 #' ## 0. Cargar paquetes
 #' `pacman::p_load()` instala (si hace falta) y carga de una sola vez todos
 #' los paquetes que se van a usar: manejo de series (`xts`, `zoo`), pruebas
@@ -51,7 +51,7 @@ p.air
 #' oscilaciones se hacen más grandes a medida que sube el nivel (varianza
 #' no constante) — ya con esto se puede anticipar que la serie NO es
 #' estacionaria, antes de correr ninguna prueba formal.
-
+#'
 #' ## 2. Descomponer la serie
 #' `decompose()` separa la serie en sus 4 componentes (tendencia, estacional,
 #' cíclico/aleatorio) — confirma visualmente lo que ya se veía en el gráfico
@@ -70,7 +70,7 @@ p.decompose
 #' sostenido; el panel estacional muestra un patrón que se repite
 #' <strong>exactamente cada 12 observaciones</strong> — quédate con ese
 #' número, es la clave del paso 7 más abajo.
-
+#'
 #' ## 3. Probar estacionariedad (sobre la serie original)
 #' Las 3 pruebas de raíz unitaria (ADF, Phillips-Perron, KPSS) sobre la serie
 #' <strong>en niveles</strong>, sin transformar todavía — el resultado
@@ -94,7 +94,7 @@ AirPassengers %>% aTSA::kpss.test(x = ., lag.short = F)
 #' especificaciones (sin nada / con constante / con tendencia) — no hay un
 #' rechazo limpio y consistente de la raíz unitaria. Coherente con lo que ya
 #' se veía a simple vista: hace falta transformar y diferenciar.
-
+#'
 #' ## 4. Diferenciar (sin transformar todavía)
 #' Un primer vistazo de qué hace `diff()` por sí solo (sin log), solo para
 #' comparar contra el paso siguiente — elimina la tendencia pero la varianza
@@ -116,7 +116,7 @@ p.diff.air
 #' un nivel parejo), pero el tamaño de las oscilaciones sigue creciendo con
 #' el tiempo — la varianza todavía no es constante. Por eso no basta con
 #' diferenciar, hace falta también transformar (paso siguiente).
-
+#'
 #' ## 5. Transformar (log) + diferenciar — la combinación correcta
 #' Ahora sí, `log()` primero (estabiliza varianza) y `diff()` después (quita
 #' tendencia) — el orden importa, ver el glosario de la guía de resumen. El
@@ -148,7 +148,7 @@ forecast::autoplot(stats::decompose(x = trans.air, type = "additive")) +
 #' parejo — oscilaciones de tamaño similar en toda la serie, sin ese
 #' "embudo" que crecía con el tiempo. Esa diferencia visual es la prueba de
 #' por qué el orden log→diferencia importa, no solo teoría.
-
+#'
 #' Se repiten las pruebas de raíz unitaria, ahora sobre la serie ya
 #' transformada y diferenciada — para confirmar que con esto ya alcanza
 #' (d=1) y no hace falta diferenciar una segunda vez.
@@ -163,7 +163,7 @@ trans.air %>%
 #' **Interpretación**: acá sí se espera un rechazo limpio de la raíz
 #' unitaria en las tres especificaciones — confirma que d=1 (una sola
 #' diferenciación) ya alcanza para la parte no estacional.
-
+#'
 #' ## 6. Identificar candidatos de p y q (ACF / PACF)
 #' Con la serie ya estacionaria, se calculan ACF (ayuda a leer q) y PACF
 #' (ayuda a leer p) — de acá salen los valores candidatos que se prueban más
@@ -180,7 +180,7 @@ forecast::Pacf(trans.air)
 #' si además hay barras que se salen en rezagos múltiplos de 12 (12, 24...),
 #' eso es estacionalidad todavía sin resolver — señal de que hace falta una
 #' diferencia estacional (paso siguiente).
-
+#'
 #' ## 7. Diferencia estacional
 #' Si en la ACF/PACF anterior quedan picos que se repiten cada N rezagos, hay
 #' estacionalidad residual — se aplica una diferencia estacional (`lag=4` en
@@ -209,7 +209,7 @@ forecast::Pacf(diff.estacional)
 #' ACF/PACF después de este paso el patrón periódico sigue viéndose igual —
 #' `lag=4` no ataca el período real de esta serie. Este mismo problema de
 #' período reaparece en los dos modelos manuales de los pasos 8 y 10.
-
+#'
 #' ## 8. Ajustar el primer modelo candidato
 #' `Arima()` recibe el orden no estacional `order=c(p,d,q)`, el orden
 #' estacional `seasonal=list(order=c(P,D,Q), period=S)`, y `lambda=0` (para
@@ -284,7 +284,7 @@ tseries::jarque.bera.test(residuals)
 #' sí se cumple. <strong>Veredicto del modelo 1</strong>: falla el supuesto
 #' más importante después de la media (autocorrelación) — por eso el
 #' siguiente paso intenta corregirlo.
-
+#'
 #' ## 10. Corregir y reajustar el modelo
 #' Segundo candidato, con otro orden (p=0,d=1,q=0 y estacional (5,1,1)) —
 #' sigue con `period=4` — y se repite exactamente la misma batería de
@@ -330,7 +330,7 @@ tseries::jarque.bera.test(residuals.ajustado)
 #' residuales: un modelo puede "ajustar mejor" y aun así violar más
 #' supuestos — acá porque el `period=4` nunca se corrigió, solo se cambió
 #' p,q,P,Q.
-
+#'
 #' ## 11. Pronosticar con el modelo corregido
 #' Con el modelo ya ajustado (aunque no validó del todo limpio, ver arriba),
 #' `forecast(modelo, h=4)` pronostica 4 meses hacia adelante. Gracias a
@@ -354,7 +354,7 @@ forecast::autoplot(pronostico.pasajeros) +
 #' (intervalos de confianza 80% y 95%, que se ensanchan mientras más lejos
 #' se pronostica). Este pronóstico hereda el problema de período de este
 #' modelo — el que sí vale la pena tomar como referencia es el del paso 13.
-
+#'
 #' ## 12. Comparar contra la búsqueda automática (auto.arima)
 #' En vez de conjeturar p,q a mano (pasos 6-10), `auto.arima()` prueba muchos
 #' modelos candidatos y se queda con el mejor AIC/BIC — acá con
@@ -409,7 +409,7 @@ tseries::jarque.bera.test(residual.auto)
 #' también tiene el mejor AIC. La razón de fondo es la misma en toda esta
 #' práctica: los modelos 1 y 2 nunca corrigieron el período estacional
 #' (paso 7), y `auto.arima()` sí lo encontró bien.
-
+#'
 #' ## 13. Pronóstico final (con el modelo de auto.arima)
 #' Mismo paso que en 11, pero sobre el modelo validado — este es el
 #' pronóstico que queda citado en la guía de resumen de la materia.
