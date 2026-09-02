@@ -359,9 +359,11 @@ forecast::autoplot(pronostico.pasajeros) +
 #' En vez de conjeturar p,q a mano (pasos 6-10), `auto.arima()` prueba muchos
 #' modelos candidatos y se queda con el mejor AIC/BIC — acá con
 #' `stepwise=FALSE` (busca todas las combinaciones, no solo un atajo greedy).
-#' A diferencia de los dos modelos manuales, acá el período estacional
-#' <strong>también se busca automáticamente</strong> a partir de la
-#' frecuencia real de los datos (12, no 4).
+#' El período estacional (S) NO es algo que `auto.arima()` busque — lo toma
+#' directo de `frequency(AirPassengers)`, que ya vale 12 (dato mensual). A
+#' diferencia de los dos modelos manuales (pasos 8 y 10), acá nadie
+#' sobreescribe ese 12 con un `period=4` — por eso el resultado sí usa el
+#' período real.
 ## Usando el metodo automatico----
 
 # El metodo automatico permite al programa buscar el que pueda ser el mejor

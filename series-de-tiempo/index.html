@@ -2183,10 +2183,12 @@ referencia es el del paso 13.</p>
 <p>En vez de conjeturar p,q a mano (pasos 6-10),
 <code>auto.arima()</code> prueba muchos modelos candidatos y se queda
 con el mejor AIC/BIC — acá con <code>stepwise=FALSE</code> (busca todas
-las combinaciones, no solo un atajo greedy). A diferencia de los dos
-modelos manuales, acá el período estacional <strong>también se busca
-automáticamente</strong> a partir de la frecuencia real de los datos
-(12, no 4).</p>
+las combinaciones, no solo un atajo greedy). El período estacional (S)
+NO es algo que <code>auto.arima()</code> busque — lo toma directo de
+<code>frequency(AirPassengers)</code>, que ya vale 12 (dato mensual). A
+diferencia de los dos modelos manuales (pasos 8 y 10), acá nadie
+sobreescribe ese 12 con un <code>period=4</code> — por eso el resultado
+sí usa el período real.</p>
 <pre class="r"><code>## Usando el metodo automatico----
 
 # El metodo automatico permite al programa buscar el que pueda ser el mejor
