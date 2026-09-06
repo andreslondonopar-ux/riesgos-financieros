@@ -210,6 +210,35 @@ forecast::Pacf(diff.estacional)
 #' `lag=4` no ataca el período real de esta serie. Este mismo problema de
 #' período reaparece en los dos modelos manuales de los pasos 8 y 10.
 #'
+#' **Ahora sí, con el período correcto — `lag=12`:**
+## Diferenciacion estacional correcta (lag=12) ----
+
+diff.estacional.12 <- diff(x = trans.air, lag = 12)
+
+forecast::autoplot(diff.estacional.12) +
+  labs(title = "Serie transformada con diferencia estacional [12]") +
+  theme_light() +
+  theme(panel.grid = element_blank())
+
+forecast::Acf(diff.estacional.12)
+forecast::Pacf(diff.estacional.12)
+
+#' **Interpretación**: acá sí desaparece el patrón periódico — ya no hay
+#' un pico enorme que se repita sin decaer cada 12 rezagos como en la
+#' gráfica de arriba. Se lee en dos zonas separadas: en la zona
+#' <strong>no estacional</strong> (rezagos 1, 2, 3...) el ACF corta fuerte
+#' en el rezago 1 y entra dentro de banda enseguida — firma de MA,
+#' <strong>q=1</strong>; el PACF no tiene un corte limpio en un solo
+#' rezago — <strong>p=0</strong>. En la zona <strong>estacional</strong>
+#' (rezagos 12, 24, 36...) el ACF vuelve a salirse de banda en el rezago
+#' 12 pero cae adentro en el 24 — corte limpio después de un solo rezago
+#' estacional, firma de MA estacional: <strong>Q=1</strong>, y
+#' <strong>P=0</strong>. Esos cuatro números — p=0, q=1, P=0, Q=1 — son
+#' exactamente los que encuentra <code>auto.arima()</code> más abajo
+#' (paso 12): <code>SARIMA(0,1,1)(0,1,1)[12]</code>. Esta es la gráfica
+#' que de verdad explica ese resultado — la de <code>lag=4</code> de
+#' arriba solo sirve para mostrar por qué ese período estaba mal.
+#'
 #' ## 8. Ajustar el primer modelo candidato
 #' `Arima()` recibe el orden no estacional `order=c(p,d,q)`, el orden
 #' estacional `seasonal=list(order=c(P,D,Q), period=S)`, y `lambda=0` (para
