@@ -60,7 +60,7 @@ forecast::autoplot(btc_ts) +
 #' las dos es estacionaria en niveles.
 #'
 #' Los retornos mensuales de cada serie se calculan como el log-retorno:
-#' \\( r_t = \\log(P_t) - \\log(P_{t-1}) \\).
+#' \( r_t = \log(P_t) - \log(P_{t-1}) \).
 colcap_ret <- diff(log(colcap_ts))
 btc_ret <- diff(log(btc_ts))
 
