@@ -4,6 +4,8 @@
 #' output:
 #'   pdf_document:
 #'     latex_engine: xelatex
+#'   word_document:
+#'     toc: true
 #'   html_document:
 #'     toc: true
 #'     toc_float: true
