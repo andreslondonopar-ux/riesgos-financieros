@@ -6,7 +6,7 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(quantmod, tseries, aTSA, forecast, lmtest, ggplot2, FinTS)
 options(scipen = 999)
 
-## 1. Precios y retornos ----
+## Descarga de precios y calculo de retornos ----
 mu_xts <- getSymbols("MU", src = "yahoo",
                       from = "2024-08-31", to = "2026-09-04",
                       auto.assign = FALSE)
@@ -25,7 +25,7 @@ autoplot(retorno) +
 
 # Retornos oscilan alrededor de cero, sin tendencia -> ya estacionarios.
 
-## 2. Estadisticas descriptivas de los retornos ----
+## 1. Estadisticas descriptivas de los retornos ----
 media   <- mean(retorno)
 desv    <- sd(retorno)
 minimo  <- min(retorno)
@@ -42,7 +42,7 @@ c(media = media, sd = desv, min = minimo, max = maximo, mediana = mediana)
 # e. Mediana (0.35%) < media (0.48%): asimetria positiva, la distribucion
 #    no es simetrica ni normal.
 
-## 3. Raices unitarias sobre el precio ----
+## 2. Raices unitarias sobre el precio ----
 precio_num <- as.numeric(precio)
 
 adf.test(precio_num)
@@ -56,7 +56,7 @@ pp.test(precio_diff)
 
 # Con d=1, ADF y PP ya rechazan H0 (p<=0.01) -> una diferencia alcanza.
 
-## 4. Modelo ARIMA sobre los retornos ----
+## 3. Modelo ARIMA sobre los retornos ----
 r <- as.numeric(retorno)
 modelo <- auto.arima(r, stepwise = FALSE)
 modelo
@@ -71,7 +71,7 @@ coeftest(modelo)
 #    ARMA(2,2), sin necesidad de diferenciar mas (d=0, el retorno ya era
 #    estacionario).
 
-## 5. Validacion de supuestos del modelo ----
+## 4. Validacion de supuestos del modelo ----
 res <- residuals(modelo)
 
 t.test(res)
@@ -90,7 +90,7 @@ jarque.bera.test(res)
 # Normalidad (Jarque-Bera): se rechaza con fuerza (p<2.2e-16) -> no son
 # normales, colas pesadas -- se anota como limitacion.
 
-## 6. Pronostico de los siguientes 5 periodos ----
+## 5. Pronostico de los siguientes 5 periodos ----
 pron <- forecast(modelo, h = 5)
 pron
 
