@@ -3,7 +3,7 @@
 ## Instrumento: Micron Technology (MU)
 
 if (!require("pacman")) install.packages("pacman")
-pacman::p_load(quantmod, tseries, aTSA, forecast, lmtest, ggplot2)
+pacman::p_load(quantmod, tseries, aTSA, forecast, lmtest, ggplot2, FinTS)
 options(scipen = 999)
 
 ## 1. Precios y retornos ----
@@ -49,13 +49,43 @@ adf.test(precio_num)
 pp.test(precio_num)
 kpss.test(precio_num, lag.short = FALSE)
 
-# ADF y PP: no rechazan H0 (p>0.6) -> hay raiz unitaria -> no estacionario.
-# KPSS: borderline, pero ADF+PP+tendencia visible coinciden -> hay que
-# diferenciar.
-
 precio_diff <- diff(precio_num)
 
 adf.test(precio_diff)
 pp.test(precio_diff)
 
 # Con d=1, ADF y PP ya rechazan H0 (p<=0.01) -> una diferencia alcanza.
+
+## 4. Modelo ARIMA sobre los retornos ----
+r <- as.numeric(retorno)
+modelo <- auto.arima(r, stepwise = FALSE)
+modelo
+coeftest(modelo)
+
+# a. Al 10% de significancia: todos los coeficientes son significativos
+#    (ar1, ar2, ma1, ma2 con p<0.001; intercepto con p=0.018) -> los 4
+#    rezagos aportan al modelo, ninguno sobra.
+# b. Modelo ARIMA(2,0,2): 2 rezagos AR y 2 rezagos MA. Significa que el
+#    retorno de hoy depende de sus propios 2 valores pasados (parte AR)
+#    Y de los errores de los ultimos 2 periodos (parte MA) a la vez -- un
+#    ARMA(2,2), sin necesidad de diferenciar mas (d=0, el retorno ya era
+#    estacionario).
+
+## 5. Validacion de supuestos del modelo ----
+res <- residuals(modelo)
+
+t.test(res)
+Box.test(res, lag = 10, type = "Ljung-Box")
+Box.test(res^2, lag = 10, type = "Ljung-Box")
+FinTS::ArchTest(res, lags = 10)
+jarque.bera.test(res)
+
+# Media cero: no se rechaza (p=0.987) -> cumple.
+# Autocorrelacion (Ljung-Box): no se rechaza a 10 rezagos (p=0.485), pero
+# SI se rechaza a 20 rezagos (p=0.009) -> resultado mixto, hay algo de
+# autocorrelacion residual a rezagos mas largos.
+# Varianza constante (Ljung-Box^2 y ARCH-LM): se rechaza en ambas
+# (p=3.5e-06 y p=0.0012) -> SI hay heterocedasticidad condicional -> no
+# toca p,d,q, hay que agregar ARCH/GARCH.
+# Normalidad (Jarque-Bera): se rechaza con fuerza (p<2.2e-16) -> no son
+# normales, colas pesadas -- se anota como limitacion.
