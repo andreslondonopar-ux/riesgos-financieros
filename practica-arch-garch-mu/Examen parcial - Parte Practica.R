@@ -89,3 +89,21 @@ jarque.bera.test(res)
 # toca p,d,q, hay que agregar ARCH/GARCH.
 # Normalidad (Jarque-Bera): se rechaza con fuerza (p<2.2e-16) -> no son
 # normales, colas pesadas -- se anota como limitacion.
+
+## 6. Pronostico de los siguientes 5 periodos ----
+pron <- forecast(modelo, h = 5)
+pron
+
+autoplot(pron) +
+  labs(title = "MU - pronostico de retornos (5 periodos)", x = "Periodo", y = "Retorno")
+
+# a. Primer pronostico: -0.14% (intervalo 95%: -8.91% a +8.62%). El punto
+# central es chico y cercano a cero -- coherente con un modelo de retornos
+# sin tendencia clara. El intervalo es muy ancho respecto al punto central
+# (~8-9 puntos porcentuales de cada lado) porque la volatilidad diaria de
+# MU es alta (sd=4.50%) y el modelo ARIMA todavia no distingue periodos de
+# alta o baja volatilidad -- eso se resuelve en el siguiente punto con
+# ARCH/GARCH. (Nota: al descargar datos en vivo de Yahoo, el precio
+# ajustado se puede recalcular levemente entre consultas -- si vuelves a
+# correr el script los numeros pueden variar un poco, pero la lectura es
+# la misma.)
