@@ -75,7 +75,15 @@ coeftest(modelo)
 res <- residuals(modelo)
 
 t.test(res)
-Box.test(res, lag = 10, type = "Ljung-Box")
+
+# Tabla de Ljung-Box en varios rezagos a la vez (en vez de uno solo)
+tabla_lb <- data.frame(
+  Rezago = 1:20,
+  LjungBox = sapply(1:20, function(k) Box.test(res, lag = k, type = "Ljung-Box")$statistic),
+  p_value  = sapply(1:20, function(k) Box.test(res, lag = k, type = "Ljung-Box")$p.value)
+)
+tabla_lb
+
 Box.test(res^2, lag = 10, type = "Ljung-Box")
 FinTS::ArchTest(res, lags = 10)
 jarque.bera.test(res)
@@ -97,13 +105,7 @@ pron
 autoplot(pron) +
   labs(title = "MU - pronostico de retornos (5 periodos)", x = "Periodo", y = "Retorno")
 
-# a. Primer pronostico: -0.14% (intervalo 95%: -8.91% a +8.62%). El punto
-# central es chico y cercano a cero -- coherente con un modelo de retornos
-# sin tendencia clara. El intervalo es muy ancho respecto al punto central
-# (~8-9 puntos porcentuales de cada lado) porque la volatilidad diaria de
-# MU es alta (sd=4.50%) y el modelo ARIMA todavia no distingue periodos de
-# alta o baja volatilidad -- eso se resuelve en el siguiente punto con
-# ARCH/GARCH. (Nota: al descargar datos en vivo de Yahoo, el precio
-# ajustado se puede recalcular levemente entre consultas -- si vuelves a
-# correr el script los numeros pueden variar un poco, pero la lectura es
-# la misma.)
+# a. Primer pronostico: punto central chico y cercano a cero, intervalo
+# amplio (varios puntos porcentuales) por la alta volatilidad diaria de
+# MU -- el ARIMA no distingue periodos de alta/baja volatilidad, eso lo
+# resuelve el ARCH/GARCH del siguiente punto.
