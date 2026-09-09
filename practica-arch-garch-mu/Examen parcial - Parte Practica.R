@@ -64,13 +64,10 @@ modelo <- auto.arima(r, stepwise = FALSE)
 modelo
 coeftest(modelo)
 
-#a. Al 10% de significancia, NO todos los coeficientes son significativos:
-#   ma1 (p=0.746) y ma2 (p=0.547) no lo son; ma3 (p=0.043), ma4 (p=0.008)
-#   e intercepto (p=0.011) si son significativos.
-#b. No se necesito ningun rezago de la parte autoregresiva (p=0) y se
-#   necesitaron 4 rezagos de la parte de media movil, es decir, el retorno
-#   de hoy depende de los errores de los ultimos 4 periodos (no de sus
-#   propios valores pasados).
+#a. todos los coeficientes son significativos con un nivel de significancia del 10%
+#b. Se necesitaron 2 rezagos de la parte autoregresiva, es decir retornos de sus propios
+#   dos valores pasados y 2 rezagos dela parte de media movil, es decir, errores de los
+#   ultimos 2 periodos.
 
 ## 4. Validacion de supuestos del modelo ----
 res <- residuals(modelo)
@@ -97,4 +94,4 @@ autoplot(pron) +
   labs(title = "MU - pronostico de retornos (5 periodos)", x = "Periodo", y = "Retorno")
 #INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,14%
 #Con un nivel de confianza del 95% se estima que el rango máximo y mínimo esté entre
-#esté entre +8,62% y -8,91%.
+#esté entre +8,11% y -9,37%.
