@@ -1,12 +1,19 @@
-## Examen parcial - Parte Practica
-## Gerencia de Riesgos Financieros
-## Instrumento: Micron Technology (MU)
+# Examen parcial - Parte Practica
 
+**Gerencia de Riesgos Financieros**
+**Instrumento: Micron Technology (MU)**
+
+## Setup
+
+```r
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(quantmod, tseries, aTSA, forecast, lmtest, ggplot2, FinTS)
 options(scipen = 999)
+```
 
-## Descarga de precios y calculo de retornos ----
+## Descarga de precios y calculo de retornos
+
+```r
 mu_xts <- getSymbols("MU", src = "yahoo",
                       from = "2024-08-31", to = "2026-09-04",
                       auto.assign = FALSE)
@@ -22,8 +29,11 @@ autoplot(retorno) +
   labs(title = "MU - retorno continuo diario", x = "Fecha", y = "Retorno")
 
 # Retornos oscilan alrededor de cero, sin tendencia -> ya estacionarios.
+```
 
-## 1. Estadisticas descriptivas de los retornos ----
+## 1. Estadisticas descriptivas de los retornos
+
+```r
 media   <- mean(retorno) #EL retonro promedio diario es de 0,475%
 desv    <- sd(retorno) #La volatilidad diaria es de 4,5% diario
 minimo  <- min(retorno)  #La peor caida en un día fue de 17,65%
@@ -31,9 +41,11 @@ maximo  <- max(retorno)   #La mejor subida en un día fue de 17,64$
 mediana <- median(retorno)   #La mediana es de 0,345%
 
 c(media = media, sd = desv, min = minimo, max = maximo, mediana = mediana)
+```
 
 ## 2. Raices unitarias sobre el precio
 
+```r
 precio_num <- as.numeric(precio)
 
 #Hacemos las pruebas de estacionariedad sobre la serie original:
@@ -47,7 +59,7 @@ pp.test(precio_num)
 #Ya ADF y PP son suficientes, no rechazan H0, es decir hay raíz unitaria (no es
 #no es estacionaria)
 
-#kpss.test(precio_num, lag.short = FALSE) / solo la aplicamos si adf y pp se
+#kpss.test(precio_num, lag.short = FALSE) / solo la aplicamos si adf y pp se 
 #contradicen
 
 #Procedemos con la primera diferenciación, y realizamos de nuevo las pruebas:
@@ -57,8 +69,11 @@ adf.test(precio_diff)
 pp.test(precio_diff)
 
 #Ambas coinciden y rechazan H0, ya la serie es estacionaria con d=1
+```
 
-## 3. Modelo ARIMA sobre los retornos ----
+## 3. Modelo ARIMA sobre los retornos
+
+```r
 r <- as.numeric(retorno)
 modelo <- auto.arima(r, stepwise = FALSE)
 modelo
@@ -68,8 +83,11 @@ coeftest(modelo)
 #b. Se necesitaron 2 rezagos de la parte autoregresiva, es decir retornos de sus propios
 #   dos valores pasados y 2 rezagos dela parte de media movil, es decir, errores de los
 #   ultimos 2 periodos.
+```
 
-## 4. Validacion de supuestos del modelo ----
+## 4. Validacion de supuestos del modelo
+
+```r
 res <- residuals(modelo)
 
 #Media cero (se cumple)
@@ -85,8 +103,11 @@ FinTS::ArchTest(res, lags = 10)
 #normalidad (no se cumple) -> Es deseable que sea normal por facilidad de interpretación
 #pero no daña el modelo.
 jarque.bera.test(res)
+```
 
-## 5. Pronostico de los siguientes 5 periodos ----
+## 5. Pronostico de los siguientes 5 periodos
+
+```r
 pron <- forecast(modelo, h = 5)
 pron
 
@@ -95,3 +116,4 @@ autoplot(pron) +
 #INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,14%
 #Con un nivel de confianza del 95% se estima que el rango máximo y mínimo esté entre
 #esté entre +8,11% y -9,37%.
+```
