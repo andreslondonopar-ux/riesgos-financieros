@@ -31,10 +31,6 @@ autoplot(retorno) +
 # Retornos oscilan alrededor de cero, sin tendencia -> ya estacionarios.
 ```
 
-![](grafico_precio.png)
-
-![](grafico_retorno.png)
-
 ## 1. Estadisticas descriptivas de los retornos
 
 ```r
