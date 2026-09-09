@@ -92,6 +92,6 @@ pron
 
 autoplot(pron) +
   labs(title = "MU - pronostico de retornos (5 periodos)", x = "Periodo", y = "Retorno")
-#INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,14%
+#INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,65%
 #Con un nivel de confianza del 95% se estima que el rango máximo y mínimo esté entre
-#esté entre +8,11% y -9,37%.
+#esté entre +8,09% y -9,38%.
