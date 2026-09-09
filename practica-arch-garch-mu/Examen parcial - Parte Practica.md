@@ -31,6 +31,10 @@ autoplot(retorno) +
 # Retornos oscilan alrededor de cero, sin tendencia -> ya estacionarios.
 ```
 
+![](grafico_precio.png)
+
+![](grafico_retorno.png)
+
 ## 1. Estadisticas descriptivas de los retornos
 
 ```r
@@ -180,8 +184,8 @@ ARIMA(2,0,2) with non-zero mean
 
 Coefficients:
           ar1      ar2     ma1     ma2    mean
-      -1.8362  -0.9356  1.8741  0.9563  0.0047
-s.e.   0.0360   0.0416  0.0281  0.0303  0.0020
+      -1.8366  -0.9360  1.8743  0.9565  0.0047
+s.e.   0.0363   0.0422  0.0280  0.0306  0.0020
 
 sigma^2 = 0.001987:  log likelihood = 851.47
 AIC=-1690.93   AICc=-1690.76   BIC=-1665.62
@@ -189,11 +193,11 @@ AIC=-1690.93   AICc=-1690.76   BIC=-1665.62
 z test of coefficients:
 
             Estimate Std. Error  z value             Pr(>|z|)
-ar1       -1.8362472  0.0359676 -51.0529 < 0.0000000000000002 ***
-ar2       -0.9355523  0.0416439 -22.4655 < 0.0000000000000002 ***
-ma1        1.8741441  0.0281030  66.6885 < 0.0000000000000002 ***
-ma2        0.9562781  0.0303456  31.5130 < 0.0000000000000002 ***
-intercept  0.0047323  0.0020106   2.3536              0.01859 *
+ar1       -1.8365908  0.0362866 -50.6086 < 0.0000000000000002 ***
+ar2       -0.9359737  0.0421684 -22.1985 < 0.0000000000000002 ***
+ma1        1.8742768  0.0280397  66.8580 < 0.0000000000000002 ***
+ma2        0.9564557  0.0305720  31.2887 < 0.0000000000000002 ***
+intercept  0.0047407  0.0019897   2.3826              0.01719 *
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ```
@@ -266,6 +270,8 @@ autoplot(pron) +
 #Con un nivel de confianza del 95% se estima que el rango máximo y mínimo esté entre
 #esté entre +8,09% y -9,38%.
 ```
+
+![](grafico_pronostico.png)
 
 ```
     Point Forecast       Lo 80      Hi 80       Lo 95      Hi 95
