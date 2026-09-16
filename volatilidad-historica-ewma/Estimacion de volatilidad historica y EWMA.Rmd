@@ -1,0 +1,403 @@
+---
+title: "Estimación de volatilidad histórica y EWMA — AMZN"
+author: "Andrés Londoño"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+Guía de qué hace cada bloque y qué se ve en cada gráfico, en el mismo
+orden del script de clase. Precio de cierre ajustado diario de
+**Amazon (AMZN)**, 2024-01-02 a 2026-08-28 (666 retornos diarios).
+
+```{r}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, xts, tseries, magrittr, ggpubr, zoo, forecast,
+               quantmod, MTS, zoo, FinTS, lmtest, scales, timetk, readxl, psych)
+
+# 1. Definicion automatica de la ruta de trabajo ----
+if (!require("rstudioapi")) install.packages("rstudioapi")
+tryCatch(setwd(dirname(rstudioapi::getActiveDocumentContext()$path)), error = function(e) NULL)
+options(scipen = 999)
+```
+
+## 1. Descarga de precios y cálculo de retornos diarios
+
+```{r}
+# 2. Consulta de precios y calculo de retornos diarios ----
+
+acciones <- c("AMZN")
+
+precio <- quantmod::getSymbols(acciones, src = "yahoo",
+                                      from = "2023-12-31",
+                                      to = "2026-08-31",
+                                      periodicity = "daily",
+                                      auto.assign = TRUE,
+                                      warnings = FALSE) %>%
+  purrr::map(~quantmod::Ad(get(.))) %>%
+  purrr::reduce(merge.xts) %>%
+  `colnames<-`(acciones)
+```
+
+**`TTR::ROC()` con `na.pad = FALSE` — bug real encontrado y corregido.**
+El script original usaba `na.pad = F` para no dejar el primer valor en
+NA. Al verificarlo a mano (comparando contra `diff(log(precio))`), esa
+combinación específica de `TTR::ROC()` en esta versión del paquete
+**calcula mal el retorno para todas las observaciones** — no solo
+recorta el NA, corrompe el cálculo completo (el primer retorno salía en
++500% en vez de -0.98%, y arrastraba el resto). La solución correcta es
+dejar `na.pad = TRUE` (el default, que sí calcula bien) y quitar el NA
+después con `na.omit()` — el resultado final (sin la primera fila) es
+el mismo que se buscaba, pero con los números correctos.
+
+```{r}
+retornos <- TTR::ROC(precio,
+                     type = "continuous",
+                     na.pad = TRUE) %>%
+  na.omit()
+```
+
+## 1.1 Gráfico de los retornos diarios
+
+```{r}
+## 2.1. Grafico de los retornos diarios ----
+
+p.retornos <- forecast::autoplot(retornos)+
+    labs(title = paste("Retornos diarios del AMZN"),
+       x = "Fecha",
+       y = "Retorno") +
+    scale_y_continuous(labels = label_percent()) +
+    theme_light() +
+    theme(panel.grid = element_blank())
+p.retornos
+```
+
+**Interpretación**: los retornos oscilan alrededor de cero, sin
+tendencia — la firma típica de una serie ya estacionaria (a diferencia
+del precio, que sube de USD 149.93 a USD 266.43 en el período). Se ven
+rachas de mayor y menor volatilidad (clusters) — el mismo hecho
+estilizado de los retornos financieros que motiva EWMA/GARCH más
+adelante, en vez de asumir volatilidad constante.
+
+## 1.2 Estadísticas descriptivas de los retornos
+
+```{r}
+## 2.2. Estadisticas descriptivas de los retornos -------------------------------
+
+describe(x = zoo::coredata(retornos),
+         quant = c(0.025, 0.25, 0.75, 0.975),
+         trim = 0,
+         fast = F) %>%
+  t() %>%
+  round(digits = 4)
+```
+
+**Interpretación**: media diaria ≈0.09% (positiva, consistente con la
+tendencia alcista del precio en el período), desviación estándar diaria
+≈2.04% (una acción individual, más volátil que un índice amplio). El
+mínimo (-9.41%, el 2025-04-03) y el máximo (+14.25%, el 2026-07-31) no
+son simétricos — la asimetría (*skew*≈0.52, positiva) y la curtosis
+(≈6.62, muy por encima de 3) confirman el mismo hecho estilizado de
+colas pesadas que ya vimos en el módulo de ARIMA: la distribución real
+de retornos no es normal.
+
+## 1.3 Histograma de los retornos vs. distribución normal
+
+```{r}
+## 2.3. Histograma de los retornos ----------------------------------------------
+
+dens <- ggplot(data = retornos,
+               mapping = aes(x = AMZN)) +
+  geom_histogram(aes(y = after_stat(density)),
+                 fill = "steelblue4",
+                 color = "white",
+                 bins = nclass.Sturges(x = retornos$AMZN),
+                 closed = "right") +
+  geom_density(linewidth = 1) +
+  stat_function(fun = dnorm,
+                n=1001,
+                args = list(mean = mean(retornos$AMZN), sd = sd(retornos$AMZN)),
+                color = "red",
+                linewidth = 0.75) +
+    scale_x_continuous(labels = label_percent()) +
+  theme_light() +
+  labs(title = paste("Histograma retornos AMZN"),
+       x = "Retorno",
+       y = "Densidad") +
+    theme(panel.grid = element_blank())
+dens
+```
+
+**Interpretación**: la curva negra (densidad real, suavizada) es más
+alta y angosta en el centro que la curva roja (normal teórica con la
+misma media/varianza), y tiene colas más largas — justo lo que
+anticipaba la curtosis alta de la tabla anterior. Confirma visualmente
+por qué no conviene asumir normalidad al calcular medidas de riesgo
+(VaR, por ejemplo) sobre estos retornos.
+
+## 2. Volatilidad histórica (ventana expansiva)
+
+```{r}
+# 3. Volatilidad histórica ---------------------------------------------------
+
+n <- nrow(retornos)
+Vol_Historica <- vector()
+for(i in 2:n){
+  Vol_Historica[i-1] = sd(retornos[1:i])
+  }
+Vol_Historica <- xts(x = Vol_Historica,
+                     order.by = index(retornos$AMZN)[-1])
+
+p.VolHist <- forecast::autoplot(Vol_Historica) +
+  labs(title = paste("Volatilidades retornos diarios de AMZN"),
+       x = "Tiempo",
+       y = "Volatilidad") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.VolHist
+```
+
+**Interpretación**: en cada punto del tiempo se calcula la desviación
+estándar usando **todos** los datos desde el inicio hasta ese momento
+(ventana que crece, nunca se "olvida" del pasado). Por eso la línea se
+ve cada vez más plana/estable hacia el final — con más datos acumulados,
+un solo día extremo pesa cada vez menos en el promedio. Es la forma más
+simple de estimar volatilidad, pero reacciona muy lento a cambios
+recientes del mercado — justo la limitación que EWMA (sección 4) viene
+a resolver.
+
+## 2.1 Volatilidad histórica vía retornos al cuadrado
+
+```{r}
+## 3.1. Calculo volatilidad historica retornos al cuadrado ----------------------
+
+retornos2 <- retornos^2
+
+n <- nrow(retornos2)
+Vol_Historica_R2 <- vector()
+for(i in 2:n){
+  Vol_Historica_R2[i-1] = mean(retornos2[1:i])
+  }
+Vol_Historica_R2 <- xts(x = sqrt(Vol_Historica_R2),
+                        order.by = index(retornos$AMZN)[-1])
+
+p.VolHistR2 <- p.VolHist +
+  geom_line(aes(x =index(Vol_Historica_R2),
+                y = Vol_Historica_R2), color = "darkred")
+p.VolHistR2
+```
+
+**Interpretación**: la línea roja (raíz del promedio expansivo de
+retornos²) es matemáticamente casi idéntica a la sd tradicional cuando
+la media de los retornos es cercana a cero (que es el caso aquí, ≈0.09%
+diario) — por eso las dos líneas prácticamente se superponen. Es una
+forma alternativa de llegar al mismo resultado, útil como base
+conceptual directa para EWMA (que pondera esos mismos retornos² con más
+peso a lo reciente, en vez de pesarlos todos igual).
+
+## 2.2 Volatilidad con ventana móvil (rolling window)
+
+```{r}
+## 3.2. Calculo de la volatilidad con ventanas moviles ---------------------------
+
+ventana <- 20
+
+desvest_movil <- zoo::rollapply(data = retornos,
+                                width = ventana,
+                                FUN = sd) %>%
+  na.omit()
+
+p.desvest_movil <- forecast::autoplot(desvest_movil) +
+  labs(title = paste("Volatilidades retornos diarios de AMZN"),
+       subtitle = paste("Metodo de ventanas moviles de tamaño", ventana),
+       x = "Tiempo",
+       y = "Volatilidad") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.desvest_movil
+```
+
+**Interpretación**: a diferencia de la ventana expansiva (que nunca
+"olvida" nada), acá solo se usan los últimos 20 días hábiles (~1 mes de
+trading) para cada punto — por eso esta línea es mucho más variable, con
+picos y valles claros que sí reaccionan a episodios recientes de estrés
+o calma del mercado. El costo: pierde por completo la memoria de eventos
+de hace más de 20 días, sin importar qué tan importantes fueron.
+
+## 2.3 Retornos mensuales desplazados
+
+```{r}
+## 3.3. Calculo de retornos mensuales desplazados ----
+
+retornos.m <- TTR::ROC(x = precio, n = 22, type = "continuous") %>%
+  na.omit()
+
+p.retornos.m<- forecast::autoplot(retornos.m) +
+  labs(title = paste("Retornos mensuales desplazados de AMZN"),
+       x = "Tiempo",
+       y = "Retorno") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.retornos.m
+```
+
+**Interpretación**: son retornos acumulados de ~22 días hábiles (un mes
+de trading), calculados día a día (desplazados, no solo al cierre de
+cada mes calendario) — por eso hay uno por cada día del período, no solo
+12 al año. Se ven oscilaciones mucho más amplias que en los retornos
+diarios (normal: acumular 22 días de movimiento amplifica tanto las
+subidas como las caídas).
+
+## 2.4 Volatilidad histórica de los retornos mensuales
+
+```{r}
+## 3.4. Volatilidad histórica de los retornos mensuales -------------------------
+
+n <- nrow(retornos.m)
+Vol_Historica_M <- vector()
+for(i in 2:n){
+  Vol_Historica_M[i-1]=sd(retornos.m[1:i])
+  }
+Vol_Historica_M <- xts(x = Vol_Historica_M,
+                       order.by = index(retornos.m$AMZN)[-1])
+
+p.VolHist_M <- forecast::autoplot(Vol_Historica_M) +
+  labs(title = paste("Volatilidades retornos mensuales de AMZN"),
+       x = "Tiempo",
+       y = "Volatilidad") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.VolHist_M
+```
+
+**Interpretación**: mismo método de ventana expansiva de la sección 2,
+mismo comportamiento (cada vez más plana con el tiempo) — pero sobre
+los retornos mensuales, que son inherentemente más grandes en magnitud
+que los diarios, por eso la escala del eje Y es mucho mayor.
+
+## 2.5 Volatilidad histórica de retornos mensuales al cuadrado
+
+```{r}
+## 3.5. Volatilidad historica retornos mensuales al cuadrado --------------------
+
+retornos.m2 <- retornos.m^2
+n <- nrow(retornos.m2)
+Vol_Historica_R2_M <- vector()
+for(i in 2:n){
+  Vol_Historica_R2_M[i-1]=mean(retornos.m2[1:i])
+  }
+  Vol_Historica_R2_M <- xts(x = sqrt(Vol_Historica_R2_M), order.by = index(retornos.m$AMZN)[-1])
+
+p.VolHistR2_M <- p.VolHist_M +
+  geom_line(aes(x = index(Vol_Historica_R2_M),
+                y = Vol_Historica_R2_M),
+            color = "red")
+p.VolHistR2_M
+```
+
+**Interpretación**: mismo par de líneas casi superpuestas que en la
+sección 2.1, ahora sobre los retornos mensuales — confirma otra vez que
+ambos métodos (sd directa vs. raíz del promedio de retornos²) llegan al
+mismo resultado cuando la media es cercana a cero.
+
+## 3. Volatilidad ponderada exponencial (EWMA)
+
+A diferencia de los métodos anteriores (que pesan todos los días por
+igual, o los últimos N días por igual), EWMA le da **más peso a los
+días más recientes** — el peso decae exponencialmente hacia el pasado,
+según el parámetro λ (lambda). Con λ cercano a 1, casi no se olvida del
+pasado (parecido a la ventana expansiva); con λ chico, casi solo importa
+el día de ayer (muy reactivo, parecido a una ventana móvil muy corta).
+
+```{r}
+# 4. Calculo de volatilidad ponderada exponencial (EWMA) ---------------------
+
+## 4.1. lambda = 0.94 ----
+EWMA_vol_0.94 <- MTS::EWMAvol(retornos, lambda = 0.94)
+EWMA_vol_0.94_sigma <- xts(sqrt(EWMA_vol_0.94[["Sigma.t"]]), order.by = index(retornos))
+
+p.EWMA.94 <- forecast::autoplot(EWMA_vol_0.94_sigma)+
+  labs(title = paste("Volatilidades EWMA de AMZN"),
+       subtitle = expression(lambda~" = 0.94"),
+       x = "Días",
+       y = "Volatilidad EWMA (%)") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.EWMA.94
+```
+
+**Interpretación (λ=0.94)**: es el valor clásico que popularizó
+RiskMetrics (J.P. Morgan) para datos diarios — un balance entre
+reactividad y estabilidad. Se ve mucho más sensible a picos puntuales
+que la volatilidad expansiva (sección 2), pero más suave que la ventana
+móvil de 20 días (sección 2.2).
+
+## 3.1 EWMA con λ calculado a partir del tamaño de muestra
+
+```{r}
+## 4.2. lambda a partir de la cantidad de datos ----
+lambda_datos <- 1-(2/(length(retornos)+1))
+lambda_datos
+
+EWMA_vol_0.99 <- MTS::EWMAvol(retornos, lambda = lambda_datos)
+EWMA_vol_0.99_sigma <- xts(x = sqrt(EWMA_vol_0.99[["Sigma.t"]]), order.by = index(retornos))
+
+p.EWMA.99 <- forecast::autoplot(EWMA_vol_0.99_sigma)+
+  labs(title = paste("Volatilidades EWMA de AMZN"),
+       subtitle = bquote(~lambda == .(lambda_datos)),
+       x = "Días",
+       y = "Volatilidad EWMA (%)") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.EWMA.99
+```
+
+**Interpretación**: con 666 observaciones, esta fórmula da λ≈0.997 —
+muy cercano a 1, así que el EWMA resultante casi no "olvida" nada del
+pasado, y por eso el gráfico se parece mucho al de volatilidad histórica
+expansiva (sección 2), suavizándose cada vez más con el tiempo en vez de
+reaccionar a lo reciente.
+
+## 3.2 EWMA con λ = 0.5 (muy reactivo)
+
+```{r}
+## 4.3. lambda = 0.5 ----
+EWMA_vol_0.5 <- MTS::EWMAvol(retornos, lambda = 0.5)
+EWMA_vol_0.5_sigma <- xts(x = sqrt(EWMA_vol_0.5[["Sigma.t"]]), order.by = index(retornos))
+
+p.EWMA.50 <- forecast::autoplot(EWMA_vol_0.5_sigma)+
+  labs(title = paste("Volatilidades EWMA de AMZN"),
+       subtitle = expression(lambda~" = 0.5"),
+       x = "Días",
+       y = "Volatilidad EWMA (%)") +
+    scale_y_continuous(labels = label_percent()) +
+  theme_light() +
+    theme(panel.grid = element_blank())
+p.EWMA.50
+```
+
+**Interpretación (λ=0.5)**: con un λ tan chico, casi todo el peso cae en
+los rezagos más recientes — el resultado es una volatilidad muy
+"nerviosa", que sube y baja de golpe con cada shock puntual, sin
+suavizar casi nada. Es el extremo opuesto de λ≈0.997: mucha reactividad,
+poca estabilidad.
+
+## Conclusión — comparando los 3 λ de EWMA
+
+| λ | Comportamiento | Memoria del pasado |
+|---|---|---|
+| 0.997 (de los datos) | Muy suave, casi no reacciona a shocks puntuales | Muy larga |
+| 0.94 (RiskMetrics) | Balance intermedio | Media |
+| 0.5 | Muy reactivo, sigue cada shock de cerca | Muy corta |
+
+No hay un λ "correcto" universal — la elección depende de qué tan
+rápido quieras que tu estimado de riesgo reaccione a noticias nuevas
+vs. qué tan estable quieras que sea de un día a otro.
