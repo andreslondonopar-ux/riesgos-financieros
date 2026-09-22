@@ -149,6 +149,15 @@
     </div>
   </div>
 
+  <div class="card">
+    <h3>6. Modelos ARCH y GARCH</h3>
+    <p class="desc">Continuación sobre AMZN: se ajusta primero el modelo de la media (ARIMA), se detecta heterocedasticidad en sus residuales, y se modela la varianza con ARCH(1) y GARCH(1,1), comparando cuál deja menos autocorrelación sin explicar en los residuales estandarizados. Incluye un hallazgo real: <code>auto.arima()</code> encontró un ARIMA(0,0,0) vacío para AMZN — la firma estadística de un mercado eficiente — que rompe <code>coeftest()</code> por no tener coeficientes, manejado explícitamente en el código.</p>
+    <div class="links">
+      <a href="arch-garch/">📘 Ver reporte (R)</a>
+      <a href="https://github.com/andreslondonopar-ux/riesgos-financieros/blob/master/arch-garch/Estimacion%20ARCH%20y%20GARCH.R">💻 Código .R</a>
+    </div>
+  </div>
+
 </main>
 
 <footer>
