@@ -1,0 +1,535 @@
+---
+title: "Volatilidad bajo presión: MU y WDC en la ola de los semiconductores de memoria"
+author: "Andrés Londoño"
+output:
+  pdf_document:
+    latex_engine: xelatex
+  word_document:
+    toc: true
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE, fig.align = "center")
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(tidyverse, xts, tseries, magrittr, zoo, forecast, quantmod,
+               MTS, FinTS, fGarch, lmtest, scales, psych, patchwork, knitr)
+options(scipen = 999)
+```
+
+## 1. Introducción
+
+Estimar bien la volatilidad de una acción no es un ejercicio puramente
+estadístico: de ahí sale directamente el tamaño del riesgo que asume un
+inversionista, cuánto capital debe reservar una mesa de trading para cubrir
+pérdidas, y qué tan ajustado (o exagerado) queda un pronóstico de Valor en
+Riesgo. Usar un método que reacciona demasiado lento a un choque real, o uno
+que sobrerreacciona a un solo día extremo, tiene consecuencias prácticas
+directas sobre la gestión del riesgo de un portafolio.
+
+En este trabajo se comparan cinco formas de estimar la volatilidad de los
+retornos diarios de dos acciones del sector de semiconductores de memoria
+— Micron Technology (MU) y Western Digital (WDC) —: volatilidad histórica,
+volatilidad móvil, EWMA, ARMA-ARCH y ARMA-GARCH. El documento está
+organizado así: primero se describen las dos acciones y se analiza el
+comportamiento de sus precios y retornos diarios; luego se estima la
+volatilidad con cada uno de los cinco métodos, señalando ventajas y
+desventajas de cada uno; y finalmente se presentan las conclusiones,
+incluyendo el pronóstico a 5 días del retorno, la volatilidad, el Valor en
+Riesgo y la Pérdida Esperada de los modelos ARCH y GARCH.
+
+## 2. Descripción de las acciones seleccionadas
+
+**Micron Technology (MU).** Micron es un fabricante estadounidense de
+memorias semiconductoras (DRAM y NAND flash), que provee componentes de
+memoria para centros de datos, computadores, teléfonos y, cada vez más,
+infraestructura de inteligencia artificial. Cotiza en el Nasdaq. Fuente:
+precio de cierre ajustado diario descargado de Yahoo Finance.
+
+**Western Digital (WDC).** Western Digital es un fabricante estadounidense
+de dispositivos de almacenamiento de datos, especializado en discos duros
+(HDD) para centros de datos y almacenamiento empresarial — el mismo sector
+de infraestructura de memoria/almacenamiento que Micron, pero con un
+producto distinto (almacenamiento magnético en vez de memoria de
+semiconductor). Cotiza en el Nasdaq. Fuente: precio de cierre ajustado
+diario descargado de Yahoo Finance.
+
+Se escogieron estas dos acciones porque comparten el mismo ciclo de demanda
+(construcción de centros de datos e inteligencia artificial), pero con
+modelos de negocio distintos dentro de ese ciclo — lo que hace interesante
+comparar si su volatilidad se comporta de forma parecida o no.
+
+```{r datos}
+acciones <- c("MU", "WDC")
+
+precios <- quantmod::getSymbols(acciones, src = "yahoo",
+                                from = "2023-12-31", to = "2026-08-31",
+                                periodicity = "daily",
+                                auto.assign = TRUE, warnings = FALSE) %>%
+  purrr::map(~quantmod::Ad(get(.))) %>%
+  purrr::reduce(merge.xts) %>%
+  `colnames<-`(acciones)
+
+retorno.mu  <- TTR::ROC(precios$MU,  type = "continuous", na.pad = TRUE) %>% na.omit()
+retorno.wdc <- TTR::ROC(precios$WDC, type = "continuous", na.pad = TRUE) %>% na.omit()
+```
+
+## 3. Análisis de los Precios y de los Retornos Diarios
+
+Se anuncian y muestran a continuación los precios de cierre ajustados de
+las dos acciones, del 2 de enero de 2024 al 28 de agosto de 2026
+(`r nrow(retorno.mu)` observaciones diarias):
+
+```{r precios, fig.height=3.2}
+p.precio.mu <- forecast::autoplot(precios$MU) +
+  labs(title = "Precio MU", x = "Fecha", y = "USD") +
+  theme_light() + theme(panel.grid = element_blank())
+p.precio.wdc <- forecast::autoplot(precios$WDC) +
+  labs(title = "Precio WDC", x = "Fecha", y = "USD") +
+  theme_light() + theme(panel.grid = element_blank())
+p.precio.mu | p.precio.wdc
+```
+
+Las dos series de precios muestran una tendencia claramente alcista en el
+período, con MU pasando de niveles cercanos a los \$75 a superar los \$200
+hacia el final de la muestra, y WDC con un comportamiento similar —
+consistente con el boom de demanda de memoria e infraestructura de IA que
+vivió el sector en este período. Ninguna de las dos series de precios se ve
+estacionaria a simple vista (tendencia visible), por lo que se trabaja con
+los retornos, no con los precios, para el resto del análisis.
+
+```{r retornos, fig.height=3.2}
+p.ret.mu <- forecast::autoplot(retorno.mu) +
+  labs(title = "Retornos diarios MU", x = "Fecha", y = "Retorno") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.ret.wdc <- forecast::autoplot(retorno.wdc) +
+  labs(title = "Retornos diarios WDC", x = "Fecha", y = "Retorno") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.ret.mu | p.ret.wdc
+```
+
+```{r describe}
+desc.mu  <- psych::describe(coredata(retorno.mu))
+desc.wdc <- psych::describe(coredata(retorno.wdc))
+tabla.desc <- rbind(MU = round(desc.mu[,c("mean","sd","median","skew","kurtosis","min","max")], 4),
+                    WDC = round(desc.wdc[,c("mean","sd","median","skew","kurtosis","min","max")], 4))
+kable(tabla.desc, caption = "Estadísticas descriptivas de los retornos diarios")
+```
+
+Los retornos de ambas acciones oscilan alrededor de cero sin ninguna
+tendencia visible — la media diaria es prácticamente 0 en las dos series
+(consistente con el hecho estilizado de retorno medio cercano a cero en
+alta frecuencia, ya visto en clase), con una desviación estándar diaria de
+alrededor de 4% en ambos casos. Las dos series muestran claramente
+**clusters de volatilidad**: hay tramos donde los retornos se mueven
+mucho más (por ejemplo, alrededor de eventos de resultados trimestrales o
+noticias del sector de IA) seguidos de tramos más calmados, en vez de una
+dispersión pareja en el tiempo. La curtosis de ambas series está por
+encima de la de una distribución normal (2.60 en MU y 3.15 en WDC, sobre
+una base de exceso de curtosis 0 para la normal), y WDC muestra además una
+asimetría negativa más marcada (-0.18 frente a -0.01 en MU) — las colas
+anchas y la asimetría negativa son otro hecho estilizado típico de
+retornos accionarios: las caídas grandes tienden a ser un poco más
+frecuentes o más extremas que las subidas grandes equivalentes.
+
+## 4. Estimación de la Volatilidad
+
+### 4.1 Volatilidad Histórica
+
+```{r vol-historica-calc}
+calc_vol_hist <- function(retorno) {
+  n <- nrow(retorno)
+  v <- vector()
+  for (i in 2:n) v[i-1] <- sd(retorno[1:i])
+  xts(v, order.by = index(retorno)[-1])
+}
+vol.hist.mu  <- calc_vol_hist(retorno.mu)
+vol.hist.wdc <- calc_vol_hist(retorno.wdc)
+```
+
+Se anuncia y muestra a continuación la volatilidad histórica (ventana
+expansiva, acumulando toda la muestra disponible en cada punto) de las dos
+acciones:
+
+```{r vol-historica-plot, fig.height=3.2}
+p.hist.mu <- forecast::autoplot(vol.hist.mu) +
+  labs(title = "Volatilidad histórica MU", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.hist.wdc <- forecast::autoplot(vol.hist.wdc) +
+  labs(title = "Volatilidad histórica WDC", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.hist.mu | p.hist.wdc
+```
+
+Las dos series se estabilizan hacia el final del período (menos movimiento
+en la línea a medida que se acumulan más datos) — es justamente la
+principal limitación de este método: como cada nuevo dato pesa cada vez
+menos sobre el promedio acumulado, la volatilidad histórica reacciona muy
+lento a lo que pasa recientemente, y un choque de volatilidad de hace un
+año sigue pesando exactamente igual que el de ayer. Su ventaja es que es
+la forma más sencilla de calcular, sin necesidad de escoger ningún
+parámetro adicional.
+
+### 4.2 Volatilidad Móvil
+
+```{r vol-movil-calc}
+ventana <- 20
+vol.movil.mu  <- zoo::rollapply(retorno.mu,  width = ventana, FUN = sd) %>% na.omit()
+vol.movil.wdc <- zoo::rollapply(retorno.wdc, width = ventana, FUN = sd) %>% na.omit()
+```
+
+Se anuncia y muestra a continuación la volatilidad móvil (ventana de 20
+días, aproximadamente un mes de trading):
+
+```{r vol-movil-plot, fig.height=3.2}
+p.mov.mu <- forecast::autoplot(vol.movil.mu) +
+  labs(title = "Volatilidad móvil (20d) MU", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.mov.wdc <- forecast::autoplot(vol.movil.wdc) +
+  labs(title = "Volatilidad móvil (20d) WDC", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.mov.mu | p.mov.wdc
+```
+
+A diferencia de la volatilidad histórica, la volatilidad móvil sí muestra
+picos y valles claros que van y vienen a lo largo de toda la muestra —
+reacciona mucho más rápido porque solo usa los últimos 20 días para cada
+punto, en vez de arrastrar toda la historia. La desventaja es la
+contraparte de esa ventaja: pierde por completo la memoria de cualquier
+evento anterior a esos 20 días, sin importar qué tan relevante haya sido.
+
+### 4.3 EWMA
+
+Se estima la volatilidad EWMA con dos valores de $\lambda$: el valor
+propuesto por RiskMetrics ($\lambda=0.94$) y un valor calculado a partir
+del tamaño de la muestra ($\lambda = 1-2/(T+1)$), para contrastar un
+$\lambda$ que "olvida" con relativa rapidez contra uno mucho más cercano a
+1 (casi no olvida).
+
+```{r ewma-calc}
+lambda.riskmetrics <- 0.94
+lambda.datos <- 1 - (2/(length(retorno.mu)+1))
+
+ewma_sigma <- function(retorno, lambda) {
+  e <- MTS::EWMAvol(retorno, lambda = lambda)
+  xts(sqrt(e$Sigma.t), order.by = index(retorno))
+}
+
+sigma.ewma94.mu   <- ewma_sigma(retorno.mu,  lambda.riskmetrics)
+sigma.ewma94.wdc  <- ewma_sigma(retorno.wdc, lambda.riskmetrics)
+sigma.ewmad.mu    <- ewma_sigma(retorno.mu,  lambda.datos)
+sigma.ewmad.wdc   <- ewma_sigma(retorno.wdc, lambda.datos)
+```
+
+El $\lambda$ calculado a partir de los datos resultó en
+`r round(lambda.datos, 4)` — muy cercano a 1, por lo que se espera que se
+comporte casi como la volatilidad histórica (mucha memoria, poca
+reactividad), en contraste directo con $\lambda=0.94$.
+
+```{r ewma-plot, fig.height=3.2}
+lbl.d <- paste0("lambda=", round(lambda.datos, 3))
+
+df_series <- function(...) {
+  args <- list(...)
+  nombres <- names(args)
+  purrr::map2_dfr(args, nombres, ~ tibble(fecha = index(.x), valor = as.numeric(.x), serie = .y))
+}
+
+d.ewma.mu  <- df_series("lambda=0.94" = sigma.ewma94.mu, "d" = sigma.ewmad.mu) %>%
+  mutate(serie = recode(serie, "d" = lbl.d))
+d.ewma.wdc <- df_series("lambda=0.94" = sigma.ewma94.wdc, "d" = sigma.ewmad.wdc) %>%
+  mutate(serie = recode(serie, "d" = lbl.d))
+
+p.ewma.mu <- ggplot(d.ewma.mu, aes(x = fecha, y = valor, color = serie)) +
+  geom_line() +
+  labs(title = "EWMA MU", x = "Fecha", y = "Volatilidad", color = "") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank(), legend.position = "bottom")
+p.ewma.wdc <- ggplot(d.ewma.wdc, aes(x = fecha, y = valor, color = serie)) +
+  geom_line() +
+  labs(title = "EWMA WDC", x = "Fecha", y = "Volatilidad", color = "") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank(), legend.position = "bottom")
+p.ewma.mu | p.ewma.wdc
+```
+
+Se confirma justo lo esperado: con $\lambda=0.94$ la línea es mucho más
+"nerviosa", subiendo y bajando con cada choque reciente, mientras que con
+$\lambda\approx$ `r round(lambda.datos,3)` la línea es casi tan suave y
+lenta como la volatilidad histórica de la sección 4.1 — un $\lambda$ tan
+cercano a 1 casi no le da ventaja alguna sobre el método histórico. La
+ventaja general de EWMA sobre los dos métodos anteriores es que, con un
+$\lambda$ bien elegido (como 0.94), sí le da más peso a lo reciente sin
+perder por completo la memoria del pasado, como hace la volatilidad
+móvil. Su desventaja, vista ya en clase, es que aunque el peso de un
+choque disminuye con el tiempo, ese olvido es gradual — el efecto de un
+choque grande persiste durante varios días antes de desaparecer del todo.
+
+### 4.4 ARMA-ARCH
+
+Antes de modelar la varianza, se ajusta primero un modelo para la media de
+los retornos.
+
+```{r auto-arima}
+f.arima.mu  <- forecast::auto.arima(retorno.mu,  d = 0)
+f.arima.wdc <- forecast::auto.arima(retorno.wdc, d = 0)
+f.arima.mu
+f.arima.wdc
+```
+
+`auto.arima()` encontró para las dos acciones un **ARIMA(0,0,0) con media
+distinta de cero** — es decir, ningún término autorregresivo ni de media
+móvil, solo una constante (`r round(coef(f.arima.mu)["mean"],4)` para MU y
+`r round(coef(f.arima.wdc)["mean"],4)` para WDC). No hay estructura
+predecible más allá del retorno promedio — el mismo resultado que ya se
+había encontrado en clase con Amazon, y consistente con la teoría de
+eficiencia de mercado vista anteriormente. Por eso la parte de la media en
+los modelos ARCH y GARCH de aquí en adelante se especifica como
+`arma(0,0)` con media libre (`include.mean = TRUE`), sin ningún rezago
+autorregresivo ni de media móvil que estimar.
+
+```{r arch-fit}
+f.arch.mu  <- fGarch::garchFit(formula = ~arma(0,0)+garch(1,0), data = retorno.mu,
+                               trace = FALSE, include.mean = TRUE)
+f.arch.wdc <- fGarch::garchFit(formula = ~arma(0,0)+garch(1,0), data = retorno.wdc,
+                               trace = FALSE, include.mean = TRUE)
+```
+
+```{r arch-summary-mu}
+summary(f.arch.mu)
+```
+
+```{r arch-summary-wdc}
+summary(f.arch.wdc)
+```
+
+En las dos acciones, $\alpha_1$ resultó positivo y significativo
+(`r round(coef(f.arch.mu)["alpha1"],4)` en MU, p=0.0039;
+`r round(coef(f.arch.wdc)["alpha1"],4)` en WDC, p=0.0020), cumpliendo la
+restricción de no negatividad de la varianza. Sin embargo, al revisar la
+prueba de Ljung-Box sobre los residuales estandarizados al cuadrado (que
+prueba si queda heterocedasticidad sin explicar), en **ninguna de las dos
+acciones** el ARCH(1) logra eliminarla del todo en rezagos largos (Q(10)
+con p=0.0002 en MU y p<0.0001 en WDC) — con solo un rezago de memoria, el
+modelo no alcanza a capturar toda la persistencia real de la volatilidad
+de estas dos acciones.
+
+```{r sigma-arch}
+sigma.arch.mu  <- xts(f.arch.mu@sigma.t,  order.by = index(retorno.mu))
+sigma.arch.wdc <- xts(f.arch.wdc@sigma.t, order.by = index(retorno.wdc))
+```
+
+Se anuncia y muestra a continuación la volatilidad estimada por el
+ARCH(1) para las dos acciones:
+
+```{r arch-plot, fig.height=3.2}
+p.arch.mu <- forecast::autoplot(sigma.arch.mu) +
+  labs(title = "Volatilidad ARCH(1) MU", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.arch.wdc <- forecast::autoplot(sigma.arch.wdc) +
+  labs(title = "Volatilidad ARCH(1) WDC", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.arch.mu | p.arch.wdc
+```
+
+La ventaja del ARCH(1) frente a los tres métodos anteriores es que ya es
+un modelo condicional propiamente dicho (con parámetros estimados por
+máxima verosimilitud, no un promedio arbitrario), que reacciona a los
+errores recientes al cuadrado. La desventaja, confirmada arriba con la
+prueba de heterocedasticidad, es que con un solo rezago no es
+suficientemente parsimonioso para capturar toda la persistencia real de
+la volatilidad — habría que agregar más rezagos, lo que complica el
+modelo y hace más difícil cumplir la restricción de no negatividad de
+todos los coeficientes a la vez.
+
+### 4.5 ARMA-GARCH
+
+```{r garch-fit}
+f.garch.mu  <- fGarch::garchFit(formula = ~arma(0,0)+garch(1,1), data = retorno.mu,
+                                trace = FALSE, include.mean = TRUE)
+f.garch.wdc <- fGarch::garchFit(formula = ~arma(0,0)+garch(1,1), data = retorno.wdc,
+                                trace = FALSE, include.mean = TRUE)
+```
+
+```{r garch-summary-mu}
+summary(f.garch.mu)
+```
+
+```{r garch-summary-wdc}
+summary(f.garch.wdc)
+```
+
+El GARCH(1,1) sí logra capturar la heterocedasticidad que el ARCH(1) no
+pudo: la prueba de Ljung-Box sobre los residuales estandarizados al
+cuadrado ya no rechaza en ningún rezago probado (Q(10) con p=0.937 en MU
+y p=0.996 en WDC). En las dos acciones $\beta_1$ resultó muy significativo
+y grande (`r round(coef(f.garch.mu)["beta1"],4)` en MU,
+`r round(coef(f.garch.wdc)["beta1"],4)` en WDC) — la suma
+$\alpha_1+\beta_1$ da `r round(coef(f.garch.mu)["alpha1"]+coef(f.garch.mu)["beta1"],3)`
+en MU y `r round(coef(f.garch.wdc)["alpha1"]+coef(f.garch.wdc)["beta1"],3)`
+en WDC, ambos bien por debajo de 1 (modelos estables) pero con
+persistencia bastante alta — la volatilidad de estas dos acciones tarda
+en volver a su nivel de largo plazo una vez sube.
+
+```{r sigma-garch}
+sigma.garch.mu  <- xts(f.garch.mu@sigma.t,  order.by = index(retorno.mu))
+sigma.garch.wdc <- xts(f.garch.wdc@sigma.t, order.by = index(retorno.wdc))
+```
+
+Se anuncia y muestra a continuación la volatilidad estimada por el
+GARCH(1,1) para las dos acciones:
+
+```{r garch-plot, fig.height=3.2}
+p.garch.mu <- forecast::autoplot(sigma.garch.mu) +
+  labs(title = "Volatilidad GARCH(1,1) MU", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.garch.wdc <- forecast::autoplot(sigma.garch.wdc) +
+  labs(title = "Volatilidad GARCH(1,1) WDC", x = "Fecha", y = "Volatilidad") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank())
+p.garch.mu | p.garch.wdc
+```
+
+La ventaja de GARCH sobre ARCH es justamente esta: con solo dos
+parámetros ($\alpha_1$ y $\beta_1$, en vez de necesitar muchos rezagos)
+logra capturar mucha más persistencia de la volatilidad, porque el
+término $\beta_1\sigma^2_{t-1}$ le da memoria de su propia varianza
+pasada, no solo del último error al cuadrado. Su desventaja compartida
+con ARCH es que ninguno de los dos corrige la falta de normalidad de los
+residuales (Jarque-Bera sigue rechazando con fuerza en las cuatro
+combinaciones) — aunque, como ya se discutió en clase, ese es el supuesto
+menos crítico de los cuatro a validar.
+
+### Comparación de los cuatro métodos
+
+```{r comparacion-plot, fig.height=3.4}
+d.comp.mu <- df_series("Histórica" = vol.hist.mu, "EWMA (lambda=0.94)" = sigma.ewma94.mu,
+                       "ARCH(1)" = sigma.arch.mu, "GARCH(1,1)" = sigma.garch.mu)
+d.comp.wdc <- df_series("Histórica" = vol.hist.wdc, "EWMA (lambda=0.94)" = sigma.ewma94.wdc,
+                        "ARCH(1)" = sigma.arch.wdc, "GARCH(1,1)" = sigma.garch.wdc)
+
+comp.mu <- ggplot(d.comp.mu, aes(x = fecha, y = valor, color = serie)) +
+  geom_line() +
+  labs(title = "Comparación de métodos — MU", x = "Fecha", y = "Volatilidad", color = "") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank(), legend.position = "bottom")
+comp.wdc <- ggplot(d.comp.wdc, aes(x = fecha, y = valor, color = serie)) +
+  geom_line() +
+  labs(title = "Comparación de métodos — WDC", x = "Fecha", y = "Volatilidad", color = "") +
+  scale_y_continuous(labels = label_percent()) +
+  theme_light() + theme(panel.grid = element_blank(), legend.position = "bottom")
+comp.mu | comp.wdc
+```
+
+En las dos acciones se ve el mismo patrón: la línea de volatilidad
+histórica es la más plana y la más lenta en reaccionar; EWMA y GARCH se
+mueven de forma mucho más parecida entre sí, siguiendo de cerca los
+picos y valles reales del mercado; y ARCH(1) es la más "nerviosa" y
+ruidosa de las cuatro, con picos puntuales muy marcados que no siempre se
+sostienen — la contraparte visual de que, como ya se vio, le falta
+memoria para suavizar bien esos picos.
+
+### Pronóstico a 5 días: retorno, volatilidad, VaR y Pérdida Esperada
+
+Con los modelos ARCH(1) y GARCH(1,1) ya ajustados, se pronostica el
+retorno y la volatilidad de los siguientes 5 días, y a partir de ahí se
+calcula el Valor en Riesgo (VaR) y la Pérdida Esperada (Expected
+Shortfall) al 95% de confianza, de forma paramétrica bajo el supuesto de
+normalidad:
+
+$$VaR_{95\%} = -(\hat{r}_t + z_{0.05}\cdot\hat{\sigma}_t) \qquad
+ES_{95\%} = -\hat{r}_t + \hat{\sigma}_t\cdot\frac{\phi(z_{0.05})}{0.05}$$
+
+donde $\hat r_t$ y $\hat\sigma_t$ son el retorno y la volatilidad
+pronosticados, $z_{0.05}=$ `r round(qnorm(0.05),3)` el cuantil 5% de la
+normal estándar, y $\phi$ su función de densidad.
+
+```{r pronostico-calc}
+alpha <- 0.05
+z <- qnorm(alpha)
+phi_z <- dnorm(z)
+var_calc <- function(mu, sigma) -(mu + z*sigma)
+es_calc  <- function(mu, sigma) -mu + sigma*(phi_z/alpha)
+
+tabla_pronostico <- function(pred, activo, modelo) {
+  data.frame(
+    Activo = activo, Modelo = modelo, Periodo = 1:5,
+    `Retorno pronosticado` = percent(pred$meanForecast, accuracy = 0.01),
+    `Volatilidad` = percent(pred$standardDeviation, accuracy = 0.01),
+    `VaR 95%` = percent(var_calc(pred$meanForecast, pred$standardDeviation), accuracy = 0.01),
+    `Pérdida Esperada 95%` = percent(es_calc(pred$meanForecast, pred$standardDeviation), accuracy = 0.01),
+    check.names = FALSE
+  )
+}
+
+pred.arch.mu   <- predict(f.arch.mu,  n.ahead = 5, plot = FALSE)
+pred.arch.wdc  <- predict(f.arch.wdc, n.ahead = 5, plot = FALSE)
+pred.garch.mu  <- predict(f.garch.mu, n.ahead = 5, plot = FALSE)
+pred.garch.wdc <- predict(f.garch.wdc,n.ahead = 5, plot = FALSE)
+
+tabla.completa <- rbind(
+  tabla_pronostico(pred.arch.mu,   "MU",  "ARCH(1)"),
+  tabla_pronostico(pred.garch.mu,  "MU",  "GARCH(1,1)"),
+  tabla_pronostico(pred.arch.wdc,  "WDC", "ARCH(1)"),
+  tabla_pronostico(pred.garch.wdc, "WDC", "GARCH(1,1)")
+)
+kable(tabla.completa, caption = "Pronóstico a 5 días: retorno, volatilidad, VaR y Pérdida Esperada (95%)")
+```
+
+El retorno pronosticado es constante en los 5 períodos para los dos
+modelos (porque la parte de la media es solo una constante, sin
+estructura ARMA) — alrededor de 0.46% diario en MU y 0.38-0.44% diario en
+WDC, el mismo retorno promedio histórico de cada acción. Lo que sí cambia
+con el horizonte es la volatilidad: en el ARCH(1), la volatilidad
+pronosticada converge rápido hacia su nivel de largo plazo (en 2-3 días ya
+casi no cambia, por la poca memoria de este modelo); en el GARCH(1,1), el
+cambio de un día a otro es mucho más suave, reflejo directo de la alta
+persistencia ($\alpha_1+\beta_1$ cercano a 1) ya comentada. El VaR y la
+Pérdida Esperada, al ser función directa de la volatilidad pronosticada,
+siguen el mismo patrón: WDC con GARCH termina siendo, de las cuatro
+combinaciones, la que arroja el peor escenario (Pérdida Esperada cercana
+al 9.4% a 5 días) — no porque WDC sea "más riesgosa" en el largo plazo
+(su volatilidad histórica es prácticamente igual a la de MU), sino porque
+el modelo arrancó el pronóstico desde un nivel de volatilidad condicional
+más alto en los últimos días de la muestra.
+
+## 5. Conclusiones
+
+Los cinco métodos usados en este trabajo forman, en el fondo, una
+progresión: volatilidad histórica y volatilidad móvil son los extremos
+opuestos (memoria total y sin reacción, contra memoria nula y mucha
+reacción); EWMA es un punto intermedio ajustable con un solo parámetro
+($\lambda$); y ARCH/GARCH son los únicos que, además de estimarse
+formalmente por máxima verosimilitud, se pueden validar con una prueba
+estadística explícita de si les queda o no heterocedasticidad sin
+explicar. Esa prueba fue justamente la que separó a los dos modelos
+condicionales en este trabajo: el ARCH(1) no fue suficiente para ninguna
+de las dos acciones, mientras que el GARCH(1,1) sí capturó toda la
+persistencia de la volatilidad en ambos casos, gracias al término
+adicional que le da memoria de su propia varianza pasada.
+
+MU y WDC, pese a compartir el mismo ciclo de demanda del sector de
+memoria/almacenamiento, mostraron una dinámica de volatilidad
+parecida en el largo plazo (ambas con una desviación estándar diaria de
+alrededor de 4%) pero con una persistencia condicional ligeramente mayor
+en WDC ($\alpha_1+\beta_1=$ `r round(coef(f.garch.wdc)["alpha1"]+coef(f.garch.wdc)["beta1"],3)`
+frente a `r round(coef(f.garch.mu)["alpha1"]+coef(f.garch.mu)["beta1"],3)`
+en MU) — coherente con que WDC también mostró la asimetría negativa y la
+curtosis más marcadas de las dos acciones en la sección 3. Para efectos
+de gestión de riesgo a corto plazo (el pronóstico a 5 días de la sección
+4.5), esa diferencia se traduce en un Valor en Riesgo y una Pérdida
+Esperada más altos para WDC que para MU en el momento específico
+analizado, un resultado que solo un modelo GARCH, y no la volatilidad
+histórica, permite anticipar con esa oportunidad.
