@@ -69,11 +69,28 @@ retornos %>% aTSA::kpss.test()
 **Interpretación**: sobre el **precio** (en niveles), ADF y PP no rechazan
 la hipótesis nula de raíz unitaria en ninguna especificación (p≈0.99) — el
 precio no es estacionario, como se espera de cualquier serie de precios con
-tendencia. Sobre los **retornos**, en cambio, ADF y PP **sí rechazan**
-la raíz unitaria con fuerza (p≤0.01 en las tres especificaciones) — los
-retornos ya son estacionarios sin necesidad de diferenciarlos (son, de
-hecho, la primera diferencia del log-precio). Con esto queda justificado
-trabajar directamente con los retornos para el modelo ARIMA.
+tendencia.
+
+Sobre los **retornos** aparece un caso real e ilustrativo: **ADF y PP no
+coinciden**. ADF **no rechaza** raíz unitaria en ninguna especificación
+(p≈0.99 en las tres) — sugeriría, de forma engañosa, que los retornos no
+son estacionarios. PP, en cambio, **sí rechaza** con fuerza (p≤0.01) y
+KPSS (que prueba lo contrario: H0 = estacionario) tampoco rechaza
+(p≥0.10) — ambas coinciden en que los retornos **sí son estacionarios**,
+como se espera de una serie que es, de hecho, la primera diferencia del
+log-precio.
+
+Esta discrepancia no es un error de los datos: es exactamente el
+fenómeno de **pérdida de potencia de ADF bajo heterocedasticidad** — ADF
+asume varianza constante en su regresión auxiliar, y la sección 1.1
+(siguiente) confirma con ARCH-LM que estos retornos **sí tienen
+heterocedasticidad** desde el primer rezago. Cuando ese supuesto de ADF
+falla, la prueba se vuelve más propensa a error tipo 2 (no rechazar raíz
+unitaria cuando debería) — PP, al ser robusta a varianza no constante,
+no sufre ese sesgo. Por eso, para series con heterocedasticidad conocida
+(como retornos financieros), conviene apoyarse en PP/KPSS por encima de
+ADF. Con esto queda justificado trabajar directamente con los retornos
+para el modelo ARIMA (d=0).
 
 ## 1.1 Heterocedasticidad, antes de ajustar cualquier modelo
 
