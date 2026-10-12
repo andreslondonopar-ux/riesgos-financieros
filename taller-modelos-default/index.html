@@ -7796,7 +7796,7 @@ a.anchor-link {
 <!-- End of mermaid configuration --></head>
 <body class="jp-Notebook" data-jp-theme-light="true" data-jp-theme-name="JupyterLab Light"><div style="background:#0f1115;color:#e0e0e0;padding:10px 20px;font-family:sans-serif;border-bottom:1px solid #333;"><a href="../" style="color:#4da3ff;">&#127968; Inicio del curso</a> &nbsp;|&nbsp; &#128221; Taller de modelos de probabilidad de default</div>
 <main>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=53584905">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e694b385">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7806,7 +7806,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d436f3d6">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ea61e15d">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7853,7 +7853,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=408afbe2">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=eb209c4b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7863,7 +7863,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=4e6df5dc">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=53894e8b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7893,7 +7893,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d227618f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c3ba4d2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7903,7 +7903,7 @@ a.anchor-link {
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a24c38f7">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7abcf455">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7929,8 +7929,8 @@ a.anchor-link {
 Dep. Variable:            loan_status   No. Observations:                19394
 Model:                          Logit   Df Residuals:                    19389
 Method:                           MLE   Df Model:                            4
-Date:                Wed, 07 Oct 2026   Pseudo R-squ.:                 0.02499
-Time:                        17:40:30   Log-Likelihood:                -6570.0
+Date:                Mon, 12 Oct 2026   Pseudo R-squ.:                 0.02499
+Time:                        16:56:10   Log-Likelihood:                -6570.0
 converged:                       True   LL-Null:                       -6738.4
 Covariance Type:            nonrobust   LLR p-value:                 1.292e-71
 =====================================================================================
@@ -7948,7 +7948,7 @@ ir_cat[T.13.5+]       0.5846      0.087      6.700      0.000       0.414       
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3d619749">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fba58752">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7958,7 +7958,7 @@ ir_cat[T.13.5+]       0.5846      0.087      6.700      0.000       0.414       
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0c603811">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=b7ba7f4e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -7994,18 +7994,18 @@ Categoría de referencia del modelo: Missing
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=48e6493c">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a10922b4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>Respuesta:</strong> la categoría de referencia es <strong>Missing</strong>: es la primera categoría de <code>ir_cat</code> y por eso <code>statsmodels</code> la deja fuera del modelo, mientras las demás se interpretan <em>respecto a ella</em>. Según <code>value_counts</code>, la categoría más frecuente es <code>0-8</code> (7.130 préstamos) y la menos frecuente es <code>Missing</code> (2.776), así que la referencia no es la más frecuente sino la que se fijó con el orden de las categorías. En el modelo de un solo predictor: <code>0-8</code> tiene un coeficiente de −0,689 (odds de default ≈ 0,50 veces los de Missing), <code>8-11</code> no es significativo (p = 0,464), <code>11-13.5</code> sube el log-odds en 0,225 y <code>13.5+</code> en 0,585 (odds ≈ 1,79 veces). A mayor tasa de interés, mayor probabilidad de default.</p>
+<p><strong>Respuesta:</strong> la categoría de referencia es <strong>Missing</strong>: es la primera categoría de <code>ir_cat</code> y por eso <code>statsmodels</code> la deja fuera del modelo, mientras las demás se interpretan <em>respecto a ella</em>. Según <code>value_counts</code>, la categoría más frecuente es <code>0-8</code> (7.130 préstamos) y la menos frecuente es <code>Missing</code> (2.776), así que la referencia no es la más frecuente sino la que se fijó con el orden de las categorías. En el modelo de un solo predictor: <code>0-8</code> tiene un coeficiente de −0,689 (odds de default ≈ 0,50 veces los de Missing), <code>8-11</code> no es significativo (p = 0,464), <code>11-13.5</code> sube el log-odds en 0,225 y <code>13.5+</code> en 0,585 (odds ≈ 1,79 veces). A mayor tasa de interés, mayor probabilidad de default. Nota: la regla “con que una categoría sea significativa, la variable lo es” es solo una regla práctica; lo correcto es una prueba conjunta (Wald/LR) sobre todos los coeficientes de la variable (ver pregunta 5).</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=36e7c7c5">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a9876cc4">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8015,7 +8015,7 @@ Categoría de referencia del modelo: Missing
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=7eb464f9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2c385905">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8051,8 +8051,8 @@ Categoría de referencia del modelo: Missing
 Dep. Variable:            loan_status   No. Observations:                19394
 Model:                          Logit   Df Residuals:                    19380
 Method:                           MLE   Df Model:                           13
-Date:                Wed, 07 Oct 2026   Pseudo R-squ.:                 0.03633
-Time:                        17:40:30   Log-Likelihood:                -6493.6
+Date:                Mon, 12 Oct 2026   Pseudo R-squ.:                 0.03633
+Time:                        16:56:10   Log-Likelihood:                -6493.6
 converged:                       True   LL-Null:                       -6738.4
 Covariance Type:            nonrobust   LLR p-value:                 2.420e-96
 =====================================================================================
@@ -8072,14 +8072,20 @@ grade[T.A]           -1.6604      0.380     -4.375      0.000      -2.404      -
 age                  -0.0075      0.004     -1.909      0.056      -0.015       0.000
 loan_amnt         -1.234e-06    4.2e-06     -0.294      0.769   -9.46e-06    6.99e-06
 annual_inc        -5.927e-06   7.59e-07     -7.812      0.000   -7.41e-06   -4.44e-06
-=====================================================================================
+=====================================================================================</pre>
+</div>
+</div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=665eb6b7">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=bb581520">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8089,7 +8095,7 @@ annual_inc        -5.927e-06   7.59e-07     -7.812      0.000   -7.41e-06   -4.4
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=bffdcc45">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=826dca60">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8104,11 +8110,17 @@ annual_inc        -5.927e-06   7.59e-07     -7.812      0.000   -7.41e-06   -4.4
 <span class="n">odds</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"coef"</span><span class="p">:</span> <span class="n">log_model_multi</span><span class="o">.</span><span class="n">params</span><span class="p">,</span> <span class="s2">"odds = exp(coef)"</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">log_model_multi</span><span class="o">.</span><span class="n">params</span><span class="p">)})</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">signif</span><span class="o">.</span><span class="n">index</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">odds</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">()</span>
-<span class="n">me</span> <span class="o">=</span> <span class="n">log_model_multi</span><span class="o">.</span><span class="n">get_margeff</span><span class="p">()</span><span class="o">.</span><span class="n">summary_frame</span><span class="p">()</span>
+<span class="c1"># dummy=True: para variables binarias el efecto marginal es el cambio discreto (0 -&gt; 1), no la derivada</span>
+<span class="n">me</span> <span class="o">=</span> <span class="n">log_model_multi</span><span class="o">.</span><span class="n">get_margeff</span><span class="p">(</span><span class="n">dummy</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">summary_frame</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">me</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">me</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">isin</span><span class="p">(</span><span class="n">signif</span><span class="o">.</span><span class="n">index</span><span class="p">)]</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">()</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">log_model_multi</span><span class="o">.</span><span class="n">params</span><span class="p">[</span><span class="s2">"annual_inc"</span><span class="p">]</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"annual_inc, por cada 10.000 adicionales -&gt; odds: </span><span class="si">{</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">b</span><span class="o">*</span><span class="mf">1e4</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> | efecto marginal: </span><span class="si">{</span><span class="n">me</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s1">'annual_inc'</span><span class="p">,</span><span class="s1">'dy/dx'</span><span class="p">]</span><span class="o">*</span><span class="mf">1e4</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">()</span>
+<span class="c1"># Prueba conjunta (Wald) de cada variable categórica: H0 = todos sus coeficientes son 0</span>
+<span class="n">wt</span> <span class="o">=</span> <span class="n">log_model_multi</span><span class="o">.</span><span class="n">wald_test_terms</span><span class="p">(</span><span class="n">scalar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">table</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">wt</span><span class="o">.</span><span class="n">loc</span><span class="p">[[</span><span class="s2">"ir_cat"</span><span class="p">,</span> <span class="s2">"grade"</span><span class="p">]]</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">float_format</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">x</span><span class="si">:</span><span class="s2">.4g</span><span class="si">}</span><span class="s2">"</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Observaciones por grade en toda la base:"</span><span class="p">,</span> <span class="n">loan_data</span><span class="p">[</span><span class="s2">"grade"</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">sort_index</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">to_dict</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -8151,52 +8163,59 @@ annual_inc        -0.0000            1.0000
 <div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>                     dy/dx  Std. Err.        z  Pr(&gt;|z|)  Conf. Int. Low  \
-ir_cat[T.0-8]     -0.03993    0.01215 -3.28658   0.00101        -0.06374   
-ir_cat[T.11-13.5]  0.01857    0.00900  2.06407   0.03901         0.00094   
-ir_cat[T.13.5+]    0.02288    0.00993  2.30283   0.02129         0.00341   
-grade[T.E]        -0.07491    0.03560 -2.10429   0.03535        -0.14469   
-grade[T.D]        -0.09827    0.03463 -2.83755   0.00455        -0.16615   
-grade[T.C]        -0.11651    0.03477 -3.35075   0.00081        -0.18466   
-grade[T.B]        -0.14241    0.03535 -4.02896   0.00006        -0.21169   
-grade[T.A]        -0.15894    0.03632 -4.37569   0.00001        -0.23013   
+ir_cat[T.0-8]     -0.03616    0.00995 -3.63416   0.00028        -0.05567   
+ir_cat[T.11-13.5]  0.01923    0.00964  1.99369   0.04619         0.00033   
+ir_cat[T.13.5+]    0.02391    0.01086  2.20211   0.02766         0.00263   
+grade[T.E]        -0.05754    0.02035 -2.82748   0.00469        -0.09743   
+grade[T.D]        -0.07703    0.02137 -3.60425   0.00031        -0.11892   
+grade[T.C]        -0.09809    0.02572 -3.81387   0.00014        -0.14849   
+grade[T.B]        -0.13197    0.03297 -4.00318   0.00006        -0.19658   
+grade[T.A]        -0.13492    0.03081 -4.37965   0.00001        -0.19530   
 annual_inc        -0.00000    0.00000 -7.78906   0.00000        -0.00000   
 
                    Cont. Int. Hi.  
-ir_cat[T.0-8]            -0.01612  
-ir_cat[T.11-13.5]         0.03620  
-ir_cat[T.13.5+]           0.04235  
-grade[T.E]               -0.00514  
-grade[T.D]               -0.03039  
-grade[T.C]               -0.04836  
-grade[T.B]               -0.07313  
-grade[T.A]               -0.08775  
+ir_cat[T.0-8]            -0.01666  
+ir_cat[T.11-13.5]         0.03813  
+ir_cat[T.13.5+]           0.04519  
+grade[T.E]               -0.01766  
+grade[T.D]               -0.03514  
+grade[T.C]               -0.04768  
+grade[T.B]               -0.06736  
+grade[T.A]               -0.07454  
 annual_inc               -0.00000  
 
 annual_inc, por cada 10.000 adicionales -&gt; odds: 0.9425 | efecto marginal: -0.0057
+
+        statistic    pvalue  df_constraint
+ir_cat      25.28  4.41e-05              4
+grade        59.2 6.555e-11              6
+Observaciones por grade en toda la base: {'A': 9649, 'B': 9329, 'C': 5747, 'D': 3231, 'E': 868, 'F': 211, 'G': 56}
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=01c0dc44">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=30c50650">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p><strong>Significativas al 5%:</strong> <code>ir_cat</code> (0-8, 11-13.5 y 13.5+), <code>grade</code> (E, D, C, B y A) y <code>annual_inc</code>. <strong>No significativas:</strong> <code>age</code> (p = 0,056, queda en el límite), <code>loan_amnt</code> (p = 0,769), <code>ir_cat</code> 8-11 y <code>grade</code> F.</p>
+<p><strong>Cómo se calcularon los efectos marginales:</strong> con <code>get_margeff(dummy=True)</code>. Por defecto <code>get_margeff()</code> trata las dummies como continuas (derivada de la probabilidad), lo cual no tiene sentido para una variable binaria; con <code>dummy=True</code> se obtiene el cambio discreto en la probabilidad al pasar de 0 a 1. La diferencia no es menor: p. ej., para <code>grade</code> A el efecto pasa de −15,9 pp (derivada) a −13,5 pp (cambio discreto), y para <code>grade</code> E de −7,5 a −5,75 pp; para <code>ir_cat</code> 0-8, de −4,0 a −3,6 pp, y para 13.5+, de +2,3 a +2,4 pp. <code>annual_inc</code> (continua) no cambia.</p>
 <ul>
-<li><strong>Tasa de interés</strong> (referencia Missing): <code>0-8</code> multiplica los odds por 0,659 (−34 %) y baja la probabilidad de default 4,0 pp; <code>11-13.5</code> los multiplica por 1,214 (+1,9 pp) y <code>13.5+</code> por 1,270 (+2,3 pp).</li>
-<li><strong>Calificación</strong> (referencia G, la peor): cuanto mejor la calificación, menor el riesgo. Los odds se multiplican por 0,457 (E), 0,358 (D), 0,296 (C), 0,226 (B) y 0,190 (A). En probabilidad, la baja es de 7,5 pp (E) hasta 15,9 pp (A) respecto de la categoría G.</li>
+<li><strong>Tasa de interés</strong> (referencia Missing): <code>0-8</code> multiplica los odds por 0,659 (−34 %) y baja la probabilidad de default 3,6 pp; <code>11-13.5</code> los multiplica por 1,214 (+1,9 pp) y <code>13.5+</code> por 1,270 (+2,4 pp).</li>
+<li><strong>Calificación</strong> (referencia G, la peor): cuanto mejor la calificación, menor el riesgo. Los odds se multiplican por 0,457 (E), 0,358 (D), 0,296 (C), 0,226 (B) y 0,190 (A). En probabilidad, la baja es de 5,75 pp (E), 7,7 pp (D), 9,8 pp (C), 13,2 pp (B) y 13,5 pp (A) respecto de la categoría G.</li>
 <li><strong>Ingreso anual:</strong> cada 10.000 adicionales multiplican los odds por 0,9425 (−5,8 %) y reducen la probabilidad de default 0,57 pp. A mayor ingreso, menos riesgo.</li>
 </ul>
 <p>Todo <em>ceteris paribus</em>.</p>
+<p><strong>Matiz sobre <code>grade</code>:</strong> la categoría de referencia (G) tiene solo 56 observaciones en toda la base, lo que explica los errores estándar grandes (≈ 0,37-0,41) de los coeficientes de <code>grade</code> y que <code>grade</code> F no sea significativa por sí sola. Además, la significancia de una variable categórica debe juzgarse con una <strong>prueba conjunta</strong> (Wald), no mirando una dummy suelta (la regla “basta con que una categoría sea significativa” es solo práctica): para <code>ir_cat</code>, χ² = 25,3 con 4 gl (p = 4,4e-5); para <code>grade</code>, χ² = 59,2 con 6 gl (p = 6,6e-11). Ambas variables son conjuntamente significativas.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=aef569a4">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=92a79096">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8206,7 +8225,7 @@ annual_inc, por cada 10.000 adicionales -&gt; odds: 0.9425 | efecto marginal: -0
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=61d00252">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ec2d94f6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8231,19 +8250,13 @@ annual_inc, por cada 10.000 adicionales -&gt; odds: 0.9425 | efecto marginal: -0
 <pre>Optimization terminated successfully.
          Current function value: 0.338539
          Iterations 7
-</pre>
-</div>
-</div>
-<div class="jp-OutputArea-child">
-<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
-<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
-<pre>                           Logit Regression Results                           
+                           Logit Regression Results                           
 ==============================================================================
 Dep. Variable:            loan_status   No. Observations:                19394
 Model:                          Logit   Df Residuals:                    19388
 Method:                           MLE   Df Model:                            5
-Date:                Wed, 07 Oct 2026   Pseudo R-squ.:                 0.02564
-Time:                        17:40:31   Log-Likelihood:                -6565.6
+Date:                Mon, 12 Oct 2026   Pseudo R-squ.:                 0.02564
+Time:                        16:56:10   Log-Likelihood:                -6565.6
 converged:                       True   LL-Null:                       -6738.4
 Covariance Type:            nonrobust   LLR p-value:                 1.597e-72
 =====================================================================================
@@ -8262,7 +8275,7 @@ age                  -0.0115      0.004     -2.918      0.004      -0.019      -
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=8795949b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4bb9598e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8272,7 +8285,7 @@ age                  -0.0115      0.004     -2.918      0.004      -0.019      -
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2047a631">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c73d38f7">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8305,7 +8318,7 @@ dtype: float64</pre>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=48b4474a">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4a2a3d65">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8315,7 +8328,7 @@ dtype: float64</pre>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=64f6090d">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=75121bc5">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8325,6 +8338,8 @@ dtype: float64</pre>
 <div class="cm-editor cm-s-jupyter">
 <div class="highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">"Mínimo:"</span><span class="p">,</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">),</span> <span class="s2">" Máximo:"</span><span class="p">,</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Rango:"</span><span class="p">,</span> <span class="p">(</span><span class="n">predictions_all_small</span><span class="o">.</span><span class="n">max</span><span class="p">()</span> <span class="o">-</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
+<span class="n">pcts</span> <span class="o">=</span> <span class="p">[</span><span class="mf">0.01</span><span class="p">,</span> <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.95</span><span class="p">,</span> <span class="mf">0.99</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Percentiles (1%, 5%, 50%, 95%, 99%):"</span><span class="p">,</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">pcts</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
 </pre></div>
 </div>
 </div>
@@ -8339,24 +8354,26 @@ dtype: float64</pre>
 <div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
 <pre>Mínimo: 0.0362  Máximo: 0.1857
 Rango: 0.1495
+Percentiles (1%, 5%, 50%, 95%, 99%): [0.0476, 0.0531, 0.1049, 0.1805, 0.1822]
 </pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=595b7d55">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=03c15f11">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p><strong>Respuesta:</strong> las probabilidades predichas van de 3,6 % a 18,6 % (rango de 0,15). El modelo nunca asigna una probabilidad alta de default, aunque algunos préstamos sí caen en default, y sus predicciones están encerradas en una banda estrecha alrededor de la tasa base (≈ 11 %). Eso indica una <strong>capacidad de discriminación limitada</strong>: separa algo a los clientes (el pseudo-R² es solo 0,026), pero no identifica con claridad quién va a caer en default.</p>
+<p>El rango mínimo-máximo es una medida frágil (lo determinan solo los dos valores extremos). Los percentiles de este modelo confirman la banda estrecha: 1 % = 4,8 %, 5 % = 5,3 %, mediana = 10,5 %, 95 % = 18,1 % y 99 % = 18,2 %.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=5e3b7e44">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=9bdc9646">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8366,7 +8383,7 @@ Rango: 0.1495
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=fb32bafb">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=16643e50">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8403,8 +8420,8 @@ Rango: 0.1495
 Dep. Variable:            loan_status   No. Observations:                19394
 Model:                          Logit   Df Residuals:                    19377
 Method:                           MLE   Df Model:                           16
-Date:                Wed, 07 Oct 2026   Pseudo R-squ.:                 0.03646
-Time:                        17:40:31   Log-Likelihood:                -6492.7
+Date:                Mon, 12 Oct 2026   Pseudo R-squ.:                 0.03646
+Time:                        16:56:11   Log-Likelihood:                -6492.7
 converged:                       True   LL-Null:                       -6738.4
 Covariance Type:            nonrobust   LLR p-value:                 2.228e-94
 ===========================================================================================
@@ -8434,7 +8451,7 @@ age                        -0.0074      0.004     -1.899      0.058      -0.015 
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3e0a26b1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fec3c64b">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8444,7 +8461,7 @@ age                        -0.0074      0.004     -1.899      0.058      -0.015 
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ac15ee61">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=39782c4f">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8477,7 +8494,7 @@ dtype: float64</pre>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0ba2ab97">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=e8aa6400">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8487,7 +8504,7 @@ dtype: float64</pre>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=d2c2c8d3">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=db3dedf6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8499,7 +8516,8 @@ dtype: float64</pre>
     <span class="s2">"log_model_age_ir"</span><span class="p">:</span> <span class="p">[</span><span class="n">predictions_all_small</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">max</span><span class="p">()],</span>
     <span class="s2">"log_model_full"</span><span class="p">:</span> <span class="p">[</span><span class="n">predictions_all_full</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">predictions_all_full</span><span class="o">.</span><span class="n">max</span><span class="p">()]},</span> <span class="n">index</span><span class="o">=</span><span class="p">[</span><span class="s2">"mínimo"</span><span class="p">,</span> <span class="s2">"máximo"</span><span class="p">])</span>
 <span class="n">rangos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"rango"</span><span class="p">]</span> <span class="o">=</span> <span class="n">rangos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"máximo"</span><span class="p">]</span> <span class="o">-</span> <span class="n">rangos</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">"mínimo"</span><span class="p">]</span>
-<span class="n">rangos</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">rangos</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">));</span> <span class="nb">print</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"log_model_age_ir"</span><span class="p">:</span> <span class="n">predictions_all_small</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">pcts</span><span class="p">),</span> <span class="s2">"log_model_full"</span><span class="p">:</span> <span class="n">predictions_all_full</span><span class="o">.</span><span class="n">quantile</span><span class="p">(</span><span class="n">pcts</span><span class="p">)})</span><span class="o">.</span><span class="n">set_axis</span><span class="p">([</span><span class="s2">"1%"</span><span class="p">,</span> <span class="s2">"5%"</span><span class="p">,</span> <span class="s2">"mediana"</span><span class="p">,</span> <span class="s2">"95%"</span><span class="p">,</span> <span class="s2">"99%"</span><span class="p">])</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -8509,67 +8527,39 @@ dtype: float64</pre>
 <div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[12]:</div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>        log_model_age_ir  log_model_full
+mínimo            0.0362          0.0000
+máximo            0.1857          0.4382
+rango             0.1495          0.4382
 
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>log_model_age_ir</th>
-<th>log_model_full</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>mínimo</th>
-<td>0.0362</td>
-<td>0.0000</td>
-</tr>
-<tr>
-<th>máximo</th>
-<td>0.1857</td>
-<td>0.4382</td>
-</tr>
-<tr>
-<th>rango</th>
-<td>0.1495</td>
-<td>0.4382</td>
-</tr>
-</tbody>
-</table>
+         log_model_age_ir  log_model_full
+1%                 0.0476          0.0300
+5%                 0.0531          0.0456
+mediana            0.1049          0.1068
+95%                0.1805          0.1975
+99%                0.1822          0.2503
+</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=a0fb2856">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=201d2b8a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
 <p><strong>Respuesta:</strong> con el modelo completo el rango se ensancha: de ≈ 0,0 % a 43,8 % (rango de 0,44), frente a 3,6 %–18,6 % del modelo <code>log_model_age_ir</code>. Al incorporar la calificación y el ingreso anual, el modelo se atreve a asignar probabilidades mucho más bajas y mucho más altas, es decir, distingue mejor entre buenos y malos pagadores. Aun así la mejora es moderada (pseudo-R² de 0,036).</p>
+<p>El rango, sin embargo, es frágil porque lo fijan los extremos. Con percentiles, el modelo completo tiene 1 % = 3,0 %, 5 % = 4,6 %, mediana = 10,7 %, 95 % = 19,8 % y 99 % = 25,0 % (frente a 4,8 %, 5,3 %, 10,5 %, 18,1 % y 18,2 % del modelo pequeño): la dispersión es mayor también en el cuerpo de la distribución, no solo en los extremos. Lo que realmente sustenta que “distingue mejor” es el <strong>AUC</strong> (0,668 del modelo completo en la prueba, ver pregunta 17) y no el rango.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=77dd3206">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=4bc92edf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -8579,7 +8569,7 @@ dtype: float64</pre>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=702d720e">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0ab016a2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9507,7 +9497,7 @@ forceTheme('sk-container-id-1');</script></body>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=509ad38b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d7a02b74">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9517,7 +9507,7 @@ forceTheme('sk-container-id-1');</script></body>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=67bc7c22">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=216c53cf">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9553,7 +9543,7 @@ forceTheme('sk-container-id-1');</script></body>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=3499bd8f">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=83d5f46c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9563,7 +9553,7 @@ forceTheme('sk-container-id-1');</script></body>
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1fb025d9">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ec15c7a6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9621,7 +9611,7 @@ Real
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=578e78c1">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=fbbffc46">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9631,7 +9621,7 @@ Real
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=1cda05b2">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=f89db64a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9644,7 +9634,12 @@ Real
              <span class="s2">"Sensibilidad"</span><span class="p">:</span> <span class="n">metrics</span><span class="o">.</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span>
              <span class="s2">"Especificidad"</span><span class="p">:</span> <span class="n">metrics</span><span class="o">.</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">pos_label</span><span class="o">=</span><span class="mi">0</span><span class="p">)}</span>
     <span class="k">for</span> <span class="n">nombre</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">preds</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
-<span class="p">(</span><span class="n">res</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">((</span><span class="n">res</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="c1"># Precisión en sentido estricto, TP / (TP + FP)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"Precisión estricta TP/(TP+FP) con corte 0,14:"</span><span class="p">,</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">metrics</span><span class="o">.</span><span class="n">precision_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">p</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">preds</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
+<span class="n">tn</span><span class="p">,</span> <span class="n">fp</span><span class="p">,</span> <span class="n">fn</span><span class="p">,</span> <span class="n">tp</span> <span class="o">=</span> <span class="n">metrics</span><span class="o">.</span><span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">preds_logit</span><span class="p">)</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Logit: TP = </span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2">, FP = </span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2"> -&gt; </span><span class="si">{</span><span class="n">tp</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">tp</span><span class="o">+</span><span class="n">fp</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">tp</span><span class="o">/</span><span class="p">(</span><span class="n">tp</span><span class="o">+</span><span class="n">fp</span><span class="p">)</span><span class="si">:</span><span class="s2">.2%</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"FPR con corte 0,14 ="</span><span class="p">,</span> <span class="p">{</span><span class="n">n</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">metrics</span><span class="o">.</span><span class="n">recall_score</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">pos_label</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="mi">4</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span><span class="p">,</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">preds</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span>
 </pre></div>
 </div>
 </div>
@@ -9654,71 +9649,34 @@ Real
 <div class="jp-Collapser jp-OutputCollapser jp-Cell-outputCollapser">
 </div>
 <div class="jp-OutputArea jp-Cell-outputArea">
-<div class="jp-OutputArea-child jp-OutputArea-executeResult">
-<div class="jp-OutputPrompt jp-OutputArea-prompt">Out[16]:</div>
-<div class="jp-RenderedHTMLCommon jp-RenderedHTML jp-OutputArea-output jp-OutputArea-executeResult" data-mime-type="text/html" tabindex="0">
-<div>
-<style scoped="">
-    .dataframe tbody tr th:only-of-type {
-        vertical-align: middle;
-    }
-
-    .dataframe tbody tr th {
-        vertical-align: top;
-    }
-
-    .dataframe thead th {
-        text-align: right;
-    }
-</style>
-<table border="1" class="dataframe">
-<thead>
-<tr style="text-align: right;">
-<th></th>
-<th>Logit</th>
-<th>Probit</th>
-<th>Random forest</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<th>Precisión</th>
-<td>72.50</td>
-<td>72.36</td>
-<td>67.08</td>
-</tr>
-<tr>
-<th>Sensibilidad</th>
-<td>44.42</td>
-<td>44.52</td>
-<td>39.26</td>
-</tr>
-<tr>
-<th>Especificidad</th>
-<td>76.03</td>
-<td>75.87</td>
-<td>70.59</td>
-</tr>
-</tbody>
-</table>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>               Logit  Probit  Random forest
+Precisión      72.50   72.36          67.08
+Sensibilidad   44.42   44.52          39.26
+Especificidad  76.03   75.87          70.59
+Precisión estricta TP/(TP+FP) con corte 0,14: {'Logit': 0.1893, 'Probit': 0.1886, 'Random forest': 0.144}
+Logit: TP = 482, FP = 2064 -&gt; 482/2546 = 18.93%
+FPR con corte 0,14 = {'Logit': 0.2397, 'Probit': 0.2413, 'Random forest': 0.2941}
+</pre>
 </div>
 </div>
 </div>
 </div>
 </div>
-</div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=0c9d2672">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=566793da">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>Respuesta:</strong> con corte de 0,14, logit y probit son prácticamente idénticos (precisión ≈ 72,5 %, sensibilidad ≈ 44,4 %, especificidad ≈ 76,0 %). El bosque aleatorio es peor en las tres medidas (67,1 %, 39,3 % y 70,6 %). Como solo ≈ 11 % de los préstamos caen en default, la precisión global engaña un poco: lo que más importa a un prestamista es la sensibilidad, y con este corte se deja pasar a más de la mitad de los que luego incumplen.</p>
+<p><strong>Respuesta:</strong> con corte de 0,14, logit y probit son prácticamente idénticos (exactitud (accuracy) ≈ 72,5 %, sensibilidad ≈ 44,4 %, especificidad ≈ 76,0 %). El bosque aleatorio es peor en las tres medidas (67,1 %, 39,3 % y 70,6 %). Aclaración de terminología: el enunciado llama “precisión” a (TP+TN)/total, que en rigor es la <strong>exactitud (accuracy)</strong>; la precisión en sentido estricto, TP/(TP+FP), del logit con corte 0,14 sería 482/2.546 = 18,9 % (de cada 100 clientes marcados como default, solo ≈ 19 lo son realmente). Como solo ≈ 11 % de los préstamos caen en default, la exactitud global engaña un poco: lo que más importa a un prestamista es la sensibilidad, y con este corte se deja pasar a más de la mitad de los que luego incumplen.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d8dee37b">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d0819ce2">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9728,7 +9686,7 @@ Real
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=ce0ebfee">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=c71343bb">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9762,7 +9720,7 @@ Real
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=6105f435">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=699f6e2e">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9772,7 +9730,7 @@ Real
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=419a6173">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=a5351ee6">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9784,6 +9742,11 @@ Real
 <span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">auc</span><span class="p">)</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
 <span class="n">mejor</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">auc</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">auc</span><span class="o">.</span><span class="n">get</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">"Mejor modelo por AUC:"</span><span class="p">,</span> <span class="n">mejor</span><span class="p">)</span>
+<span class="c1"># AUC en entrenamiento (diagnóstico de sobreajuste)</span>
+<span class="n">auc_train</span> <span class="o">=</span> <span class="p">{</span><span class="s2">"Logit"</span><span class="p">:</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">log_model_full</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">exog</span><span class="o">=</span><span class="n">train_set</span><span class="p">)),</span>
+             <span class="s2">"Probit"</span><span class="p">:</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">probit_model_full</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">exog</span><span class="o">=</span><span class="n">train_set</span><span class="p">)),</span>
+             <span class="s2">"Random forest"</span><span class="p">:</span> <span class="n">metrics</span><span class="o">.</span><span class="n">roc_auc_score</span><span class="p">(</span><span class="n">y_train</span><span class="p">,</span> <span class="n">rf_model_full</span><span class="o">.</span><span class="n">predict_proba</span><span class="p">(</span><span class="n">X_train</span><span class="p">)[:,</span> <span class="mi">1</span><span class="p">])}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">"AUC entrenamiento"</span><span class="p">:</span> <span class="n">auc_train</span><span class="p">,</span> <span class="s2">"AUC prueba"</span><span class="p">:</span> <span class="n">auc</span><span class="p">})</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -9804,21 +9767,32 @@ Mejor modelo por AUC: Probit
 </pre>
 </div>
 </div>
+<div class="jp-OutputArea-child">
+<div class="jp-OutputPrompt jp-OutputArea-prompt"></div>
+<div class="jp-RenderedText jp-OutputArea-output" data-mime-type="text/plain" tabindex="0">
+<pre>               AUC entrenamiento  AUC prueba
+Logit                    0.64612     0.66800
+Probit                   0.64551     0.66859
+Random forest            0.99998     0.58992
+</pre>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=b65df3fc">
+</div>
+</div>
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=cd709d9c">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>Respuesta:</strong> el AUC del probit (0,6686) es el más alto, prácticamente empatado con el logit (0,6680). El bosque aleatorio queda en 0,5899, bastante más cerca del azar (0,5). Para estos datos el <strong>probit</strong> es el modelo más adecuado, aunque la diferencia con el logit es insignificante. El bosque, con 500 árboles sin ajustar, parece sobreajustar los datos de entrenamiento y no generaliza.</p>
+<p><strong>Respuesta:</strong> el AUC del probit (0,6686) es el más alto, prácticamente empatado con el logit (0,6680); la diferencia es despreciable (0,6680 vs 0,6686; no se hizo prueba formal). El bosque aleatorio queda en 0,5899, bastante más cerca del azar (0,5). Para estos datos el <strong>probit</strong> es el modelo más adecuado.</p>
+<p><strong>Evidencia de sobreajuste del bosque:</strong> su AUC en entrenamiento es 0,99998 frente a 0,5899 en prueba (memoriza los datos de entrenamiento y no generaliza), mientras que el logit pasa de 0,646 en entrenamiento a 0,668 en prueba (y el probit de 0,646 a 0,669), sin señales de sobreajuste. El bosque, con 500 árboles sin ajustar, no sirve en su forma actual.</p>
 </div>
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=d9e640e0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=ce05f76a">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9828,7 +9802,7 @@ Mejor modelo por AUC: Probit
 </div>
 </div>
 </div>
-</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=2ab71009">
+</div><div class="jp-Cell jp-CodeCell jp-Notebook-cell" id="cell-id=0d171496">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
@@ -9858,13 +9832,14 @@ Mejor modelo por AUC: Probit
 </div>
 </div>
 </div>
-<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=c85446e0">
+<div class="jp-Cell jp-MarkdownCell jp-Notebook-cell" id="cell-id=dce10593">
 <div class="jp-Cell-inputWrapper" tabindex="0">
 <div class="jp-Collapser jp-InputCollapser jp-Cell-inputCollapser">
 </div>
 <div class="jp-InputArea jp-Cell-inputArea"><div class="jp-InputPrompt jp-InputArea-prompt">
 </div><div class="jp-RenderedHTMLCommon jp-RenderedMarkdown jp-MarkdownOutput" data-mime-type="text/markdown">
-<p><strong>Respuesta:</strong> para el probit, el corte que maximiza la distancia TPR − FPR (índice de Youden) es <strong>0,1132</strong>, con TPR = 67,5 %, FPR = 41,4 % y distancia de 0,260. Es menor que el 0,14 usado antes: clasifica más préstamos como default, así que la sensibilidad sube de 44,5 % a 67,5 % a cambio de más falsos positivos (rechazar a buenos clientes). La decisión final dependería del costo relativo de un default frente al de rechazar a un buen cliente.</p>
+<p><strong>Respuesta:</strong> para el probit, el corte que maximiza la distancia TPR − FPR (índice de Youden) es <strong>0,1132</strong>, con TPR = 67,5 %, FPR = 41,4 % y distancia de 0,260. Es menor que el 0,14 usado antes: clasifica más préstamos como default, así que la sensibilidad sube de 44,5 % a 67,5 % a cambio de más falsos positivos (rechazar a buenos clientes): con corte 0,14 el probit tenía FPR = 24,1 % y con 0,1132 pasa a 41,4 %.</p>
+<p><strong>Advertencia:</strong> este corte se calculó sobre la misma base de prueba que se usó para comparar los modelos, por lo que es <strong>optimista</strong> (está ajustado a esa muestra); lo ideal sería elegirlo en una base de validación aparte y evaluarlo en prueba. La decisión final dependería, además, del costo relativo de un default frente al de rechazar a un buen cliente.</p>
 </div>
 </div>
 </div>

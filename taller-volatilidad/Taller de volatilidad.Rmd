@@ -94,8 +94,9 @@ p.precio.mu | p.precio.wdc
 ```
 
 Las dos series de precios muestran una tendencia claramente alcista en el
-período, con MU pasando de niveles cercanos a los \$75 a superar los \$200
-hacia el final de la muestra, y WDC con un comportamiento similar —
+período, con MU pasando de unos \$82 (2 de enero de 2024, precio ajustado) a unos
+\$933 al final de la muestra (28 de agosto de 2026; máximo de \$1,213 en el
+período), y WDC de unos \$38 a unos \$459 — un comportamiento similar,
 consistente con el boom de demanda de memoria e infraestructura de IA que
 vivió el sector en este período. Ninguna de las dos series de precios se ve
 estacionaria a simple vista (tendencia visible), por lo que se trabaja con
@@ -122,10 +123,12 @@ kable(tabla.desc, caption = "Estadísticas descriptivas de los retornos diarios"
 ```
 
 Los retornos de ambas acciones oscilan alrededor de cero sin ninguna
-tendencia visible — la media diaria es prácticamente 0 en las dos series
-(consistente con el hecho estilizado de retorno medio cercano a cero en
-alta frecuencia, ya visto en clase), con una desviación estándar diaria de
-alrededor de 4% en ambos casos. Las dos series muestran claramente
+tendencia visible — la media diaria es pequeña en términos absolutos (0.37% en ambas series,
+que la tabla redondea a 0), pero no es despreciable: equivale a cerca de
+93% anualizado y es estadísticamente significativa (t ≈ 2.2-2.5 con la
+media muestral y 2.4-3.6 como parámetro $\mu$ de los modelos ARCH/GARCH
+de la sección 4), reflejo del fuerte rally del período. La desviación
+estándar diaria es de 4.20% en MU y 3.78% en WDC (WDC cerca de 10% menor). Las dos series muestran claramente
 **clusters de volatilidad**: hay tramos donde los retornos se mueven
 mucho más (por ejemplo, alrededor de eventos de resultados trimestrales o
 noticias del sector de IA) seguidos de tramos más calmados, en vez de una
@@ -315,7 +318,8 @@ summary(f.arch.wdc)
 En las dos acciones, $\alpha_1$ resultó positivo y significativo
 (`r round(coef(f.arch.mu)["alpha1"],4)` en MU, p=0.0039;
 `r round(coef(f.arch.wdc)["alpha1"],4)` en WDC, p=0.0020), cumpliendo la
-restricción de no negatividad de la varianza. Sin embargo, al revisar la
+restricción de no negatividad de la varianza (la estacionariedad de la
+varianza exige además $\alpha_1<1$). Sin embargo, al revisar la
 prueba de Ljung-Box sobre los residuales estandarizados al cuadrado (que
 prueba si queda heterocedasticidad sin explicar), en **ninguna de las dos
 acciones** el ARCH(1) logra eliminarla del todo en rezagos largos (Q(10)
@@ -380,7 +384,14 @@ $\alpha_1+\beta_1$ da `r round(coef(f.garch.mu)["alpha1"]+coef(f.garch.mu)["beta
 en MU y `r round(coef(f.garch.wdc)["alpha1"]+coef(f.garch.wdc)["beta1"],3)`
 en WDC, ambos bien por debajo de 1 (modelos estables) pero con
 persistencia bastante alta — la volatilidad de estas dos acciones tarda
-en volver a su nivel de largo plazo una vez sube.
+en volver a su nivel de largo plazo una vez sube. Recordemos que la
+estacionariedad del GARCH(1,1) exige $\alpha_1+\beta_1<1$ (además de
+$\alpha_1>0$), condición que se cumple en ambos casos; y que entonces existe
+una varianza de largo plazo $\omega/(1-\alpha_1-\beta_1)$, que da una
+volatilidad de largo plazo de 4.42% diario en MU y 4.14% en WDC. Ese nivel
+explica el rumbo de los pronósticos de la siguiente sección: en MU el
+GARCH arranca de $\sigma_T$ = 4.39%, por debajo de 4.42%, y sube hacia ese
+nivel; en WDC arranca de 5.03%, por encima de 4.14%, y baja hacia él.
 
 ```{r sigma-garch}
 sigma.garch.mu  <- xts(f.garch.mu@sigma.t,  order.by = index(retorno.mu))
@@ -413,6 +424,10 @@ combinaciones) — aunque, como ya se discutió en clase, ese es el supuesto
 menos crítico de los cuatro a validar.
 
 ### Comparación de los cuatro métodos
+
+(Por simplicidad, esta comparación incluye volatilidad histórica, EWMA, ARCH(1) y
+GARCH(1,1); deja por fuera la volatilidad móvil de 20 días y, de EWMA, solo
+muestra la versión con $\lambda=0.94$, no la de $\lambda$ calculado.)
 
 ```{r comparacion-plot, fig.height=3.4}
 d.comp.mu <- df_series("Histórica" = vol.hist.mu, "EWMA (lambda=0.94)" = sigma.ewma94.mu,
@@ -490,8 +505,11 @@ kable(tabla.completa, caption = "Pronóstico a 5 días: retorno, volatilidad, Va
 
 El retorno pronosticado es constante en los 5 períodos para los dos
 modelos (porque la parte de la media es solo una constante, sin
-estructura ARMA) — alrededor de 0.46% diario en MU y 0.38-0.44% diario en
-WDC, el mismo retorno promedio histórico de cada acción. Lo que sí cambia
+estructura ARMA) — el parámetro $\mu$ estimado por máxima verosimilitud,
+que va de 0.36% a 0.46% diario en MU (0.46% con ARCH(1), 0.36% con GARCH(1,1)) y
+de 0.38% a 0.44% en WDC (0.38% con ARCH, 0.44% con GARCH), cercano a la
+media muestral de 0.37% en ambas acciones (aunque no idéntico, porque no es la
+media muestral sino el estimador del modelo). Lo que sí cambia
 con el horizonte es la volatilidad: en el ARCH(1), la volatilidad
 pronosticada converge rápido hacia su nivel de largo plazo (en 2-3 días ya
 casi no cambia, por la poca memoria de este modelo); en el GARCH(1,1), el
@@ -499,10 +517,11 @@ cambio de un día a otro es mucho más suave, reflejo directo de la alta
 persistencia ($\alpha_1+\beta_1$ cercano a 1) ya comentada. El VaR y la
 Pérdida Esperada, al ser función directa de la volatilidad pronosticada,
 siguen el mismo patrón: WDC con GARCH termina siendo, de las cuatro
-combinaciones, la que arroja el peor escenario (Pérdida Esperada cercana
-al 9.4% a 5 días) — no porque WDC sea "más riesgosa" en el largo plazo
-(su volatilidad histórica es prácticamente igual a la de MU), sino porque
-el modelo arrancó el pronóstico desde un nivel de volatilidad condicional
+combinaciones, la que arroja el peor escenario (Pérdida Esperada de 9.39% en el horizonte h=5; ojo, es la pérdida
+esperada de **un día** evaluada con la volatilidad pronosticada para ese
+quinto día, no una pérdida acumulada a 5 días) — no porque WDC sea "más
+riesgosa" en el largo plazo (su volatilidad histórica de 3.78% es incluso
+menor que la de MU, 4.20%), sino porque el modelo arrancó el pronóstico desde un nivel de volatilidad condicional
 más alto en los últimos días de la muestra.
 
 ## 5. Conclusiones
@@ -522,12 +541,16 @@ adicional que le da memoria de su propia varianza pasada.
 
 MU y WDC, pese a compartir el mismo ciclo de demanda del sector de
 memoria/almacenamiento, mostraron una dinámica de volatilidad
-parecida en el largo plazo (ambas con una desviación estándar diaria de
-alrededor de 4%) pero con una persistencia condicional ligeramente mayor
+parecida en el largo plazo (desviación estándar diaria de 4.20% en MU y
+3.78% en WDC) pero con una persistencia condicional ligeramente mayor
 en WDC ($\alpha_1+\beta_1=$ `r round(coef(f.garch.wdc)["alpha1"]+coef(f.garch.wdc)["beta1"],3)`
 frente a `r round(coef(f.garch.mu)["alpha1"]+coef(f.garch.mu)["beta1"],3)`
-en MU) — coherente con que WDC también mostró la asimetría negativa y la
-curtosis más marcadas de las dos acciones en la sección 3. Para efectos
+en MU). Es una diferencia pequeña y no se probó estadísticamente, así que
+no se debe sobreinterpretar; además, no tiene relación con la asimetría ni
+la curtosis de la sección 3: $\alpha_1+\beta_1$ mide la persistencia de la
+varianza condicional, mientras que la asimetría y la curtosis describen la
+distribución de los retornos brutos (y el GARCH(1,1), al ser simétrico, no
+puede reflejar asimetría). Para efectos
 de gestión de riesgo a corto plazo (el pronóstico a 5 días de la sección
 4.5), esa diferencia se traduce en un Valor en Riesgo y una Pérdida
 Esperada más altos para WDC que para MU en el momento específico

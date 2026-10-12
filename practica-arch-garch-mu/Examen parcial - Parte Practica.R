@@ -27,7 +27,7 @@ autoplot(retorno) +
 media   <- mean(retorno) #EL retonro promedio diario es de 0,475%
 desv    <- sd(retorno) #La volatilidad diaria es de 4,5% diario
 minimo  <- min(retorno)  #La peor caida en un día fue de 17,65%
-maximo  <- max(retorno)   #La mejor subida en un día fue de 17,64$
+maximo  <- max(retorno)   #La mejor subida en un día fue de 17,64%
 mediana <- median(retorno)   #La mediana es de 0,345%
 
 c(media = media, sd = desv, min = minimo, max = maximo, mediana = mediana)
@@ -65,6 +65,17 @@ modelo
 coeftest(modelo)
 
 #a. todos los coeficientes son significativos con un nivel de significancia del 10%
+#   (de hecho al 0,1% salvo la constante, p=0,018). Ojo: esto es cierto pero
+#   engañoso. El ARMA(2,2) esta sobreajustado: ar=(-1,836; -0,935) y ma=(1,874; 0,956),
+#   cada coeficiente AR es casi la negacion del MA (modulos de raices 1,034 AR y 1,023 MA,
+#   casi iguales y casi sobre la circunferencia unitaria), es decir las raices AR y MA
+#   casi se cancelan entre si, y la "alta significancia" refleja ese par casi cancelado,
+#   no una estructura predecible real. El criterio BIC prefiere un ARIMA(0,0,0)
+#   (BIC -1676,97 vs -1665,62 del ARMA(2,2)) y el AIC solo mejora 5,5 puntos
+#   (-1690,93 vs -1685,40 del modelo solo con constante). Los pronosticos oscilan
+#   (-0,63%, +1,73%, -0,80%, +1,64%, -0,47%) por raices complejas cercanas a -1, no por
+#   una dinamica predecible. La causa no es el stepwise: auto.arima con stepwise=TRUE
+#   entrega el mismo ARIMA(2,0,2).
 #b. Se necesitaron 2 rezagos de la parte autoregresiva, es decir retornos de sus propios
 #   dos valores pasados y 2 rezagos dela parte de media movil, es decir, errores de los
 #   ultimos 2 periodos.
@@ -72,18 +83,26 @@ coeftest(modelo)
 ## 4. Validacion de supuestos del modelo ----
 res <- residuals(modelo)
 
-#Media cero (se cumple)
+#Media cero (se cumple, p=0,9999) -- pero es trivial: los residuos de un modelo con
+#intercepto tienen media ~0 por construccion, asi que no es evidencia de buen ajuste.
 t.test(res)
 
-#No autocorrelación (se cumple)
-Box.test(res, lag = 10, type = "Ljung-Box")
+#No autocorrelación (se cumple). El modelo estima 4 parametros ARMA (p+q=4), por lo que
+#se corrige con fitdf=4 (gl=6): p=0,147 (sin la correccion daba 0,4848). La conclusion
+#(no hay autocorrelacion residual) no cambia.
+Box.test(res, lag = 10, type = "Ljung-Box", fitdf = 4)
 
-#Homocedasticidad (no se cumple) -> Se aplica GARCH en escenarios de heterocedasticidad
+#Homocedasticidad (no se cumple) -> Se aplica GARCH en escenarios de heterocedasticidad.
+#La heterocedasticidad condicional esta bien detectada (Ljung-Box de res^2 p=3,5e-6;
+#ARCH-LM p=0,0012). Aclaracion: este codigo NO ajusta un modelo ARCH/GARCH; solo
+#diagnostica la necesidad. (Ajustarlo no se pidio en esta parte; no se agrega aqui.)
 Box.test(res^2, lag = 10, type = "Ljung-Box")
 FinTS::ArchTest(res, lags = 10)
 
-#normalidad (no se cumple) -> Es deseable que sea normal por facilidad de interpretación
-#pero no daña el modelo.
+#normalidad (no se cumple; JB=78,8, p<2,2e-16). La no normalidad no sesga mucho los
+#estimadores puntuales, pero SI invalida los intervalos de pronostico del 95%: forecast()
+#los calcula bajo normalidad e ignora la heterocedasticidad condicional, por lo que
+#esos intervalos no son confiables.
 jarque.bera.test(res)
 
 ## 5. Pronostico de los siguientes 5 periodos ----
@@ -92,6 +111,8 @@ pron
 
 autoplot(pron) +
   labs(title = "MU - pronostico de retornos (5 periodos)", x = "Periodo", y = "Retorno")
-#INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,14%
-#Con un nivel de confianza del 95% se estima que el rango máximo y mínimo esté entre
-#esté entre +8,11% y -9,37%.
+#INTERPRETACIÓN 1ER pronóstico: Se pronóstica que en el periodo 503 el retorno sea de -0,63%
+#Con un nivel de confianza del 95% se estima que el retorno esté entre -9,37% y +8,10%
+#(intervalo basado en normalidad, ver la advertencia de la seccion 4). Los 5 pronosticos
+#oscilan de signo (-0,63%, +1,73%, -0,80%, +1,64%, -0,47%): es un artefacto del
+#sobreajuste del ARMA(2,2) (raices casi canceladas), no una senal predecible.

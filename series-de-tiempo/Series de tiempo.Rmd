@@ -61,8 +61,9 @@ no constante) — ya con esto se puede anticipar que la serie NO es
 estacionaria, antes de correr ninguna prueba formal.
 
 ## 2. Descomponer la serie
-`decompose()` separa la serie en sus 4 componentes (tendencia, estacional,
-cíclico/aleatorio) — confirma visualmente lo que ya se veía en el gráfico
+`decompose()` separa la serie en 3 componentes (tendencia, estacional y
+aleatorio/residual; el panel superior del gráfico, "observed", es la serie
+original y no cuenta como componente) — confirma visualmente lo que ya se veía en el gráfico
 anterior: tendencia creciente y un patrón que se repite cada 12 meses.
 
 ```{r}
@@ -81,6 +82,14 @@ p.decompose
 sostenido; el panel estacional muestra un patrón que se repite
 <strong>exactamente cada 12 observaciones</strong> — quédate con ese
 número, es la clave del paso 7 más abajo.
+
+**Nota metodológica:** se usó `type = "additive"` por simplicidad, pero la
+amplitud del patrón estacional de `AirPassengers` crece con el nivel de la
+serie (el propio paso 1 señala varianza no constante). Para una serie así
+lo apropiado sería `type = "multiplicative"` (o descomponer `log(x)`); con
+el modelo aditivo, el componente aleatorio conserva parte de la estructura
+que debería haber absorbido la estacionalidad. No se cambió el código del
+script original; la descomposición sirve aquí solo como apoyo visual.
 
 ## 3. Probar estacionariedad (sobre la serie original)
 Las 3 pruebas de raíz unitaria (ADF, Phillips-Perron, KPSS) sobre la serie
@@ -259,22 +268,30 @@ forecast::Pacf(diff.estacional.12)
 un pico enorme que se repita sin decaer cada 12 rezagos como en la
 gráfica de arriba. Se lee en dos zonas separadas: en la zona
 <strong>no estacional</strong> (rezagos 1, 2, 3...) el ACF corta fuerte
-en el rezago 1 y entra dentro de banda enseguida — firma de MA,
-<strong>q=1</strong>; el PACF no tiene un corte limpio en un solo
+en el rezago 1 (-0.34) y después queda mayormente dentro de banda —
+firma de MA, <strong>q=1</strong> (con la banda de ±0.171 para n=131,
+también se salen, levemente, el rezago 3 (-0.20) y el 9 (0.18), así que no
+es un corte perfectamente limpio); el PACF no tiene un corte limpio en un solo
 rezago — <strong>p=0</strong>. En la zona <strong>estacional</strong>
 (rezagos 12, 24, 36...) el ACF vuelve a salirse de banda en el rezago
-12 pero cae adentro en el 24 — corte limpio después de un solo rezago
-estacional, firma de MA estacional: <strong>Q=1</strong>, y
+12 (-0.39) pero cae adentro en el 24 (-0.02) — corte razonablemente limpio
+después de un solo rezago estacional, firma de MA estacional: <strong>Q=1</strong>, y
 <strong>P=0</strong>. Esos cuatro números — p=0, q=1, P=0, Q=1 — son
-exactamente los que encuentra <code>auto.arima()</code> más abajo
+una lectura razonable (no perfecta, por los rezagos 3 y 9 mencionados) y
+coinciden con los que encuentra <code>auto.arima()</code> más abajo
 (paso 12): <code>SARIMA(0,1,1)(0,1,1)[12]</code>. Esta es la gráfica
 que de verdad explica ese resultado — la de <code>lag=4</code> de
 arriba solo sirve para mostrar por qué ese período estaba mal.
 
 ## 8. Ajustar el primer modelo candidato
 `Arima()` recibe el orden no estacional `order=c(p,d,q)`, el orden
-estacional `seasonal=list(order=c(P,D,Q), period=S)`, y `lambda=0` (para
-que el pronóstico revierta la transformación log automáticamente). Este
+estacional `seasonal=list(order=c(P,D,Q), period=S)`, y `lambda=0`.
+Ojo con el significado de `lambda=0`: `Arima()` aplica internamente la
+transformación Box-Cox (con lambda=0, el logaritmo) a la serie
+<strong>original</strong>, ajusta el modelo sobre `log(nivel)` con d=1 (no
+sobre el log-retorno) y `forecast()` des-transforma después. Por eso se le
+pasa `AirPassengers` sin loguear: pasarle una serie ya logueada aplicaría
+el logaritmo dos veces. Este
 es un primer candidato con p=1,d=1,q=1 y estacional (1,1,3), con
 `period=4` — el mismo período cuestionable del paso 7.
 
@@ -284,8 +301,9 @@ es un primer candidato con p=1,d=1,q=1 y estacional (1,1,3), con
 # Al momento de ajustar el modelo se emplea order para los parametros (p,d,q).
 # El parametro seasonal para los valores (P,D,Q) y el numero de periodos de la
 # estacionalidad.
-# El valor lambda = 0, hace referencia a la transformacion logaritmo natural.
-# Esto facilita el proceso de pronostico.
+# El valor lambda = 0, hace referencia a la transformacion logaritmo natural
+# (Box-Cox) que Arima() aplica internamente a la serie original; forecast()
+# luego des-transforma el pronostico.
 fitARIMA <- forecast::Arima(y = AirPassengers,
                             order = c(1,1,1),
                             seasonal = list(order = c(1,1,3), period = 4),
@@ -407,9 +425,11 @@ p,q,P,Q.
 
 ## 11. Pronosticar con el modelo corregido
 Con el modelo ya ajustado (aunque no validó del todo limpio, ver arriba),
-`forecast(modelo, h=4)` pronostica 4 meses hacia adelante. Gracias a
-`lambda=0` (paso 8), el resultado ya viene en número real de pasajeros,
-no en log-retorno.
+`forecast(modelo, h=4)` pronostica 4 meses hacia adelante. Como `lambda=0`
+(paso 8), `forecast()` des-transforma automáticamente y el resultado
+viene en número de pasajeros, no en logaritmos. Detalle técnico: ese
+pronóstico puntual es la <strong>mediana</strong> de la distribución
+log-normal, no la media (la media requeriría `biasadj = TRUE`).
 
 ```{r}
 ## Realizando los pronosticos ----
@@ -459,8 +479,13 @@ lmtest::coeftest(auto.ARIMA)
 ```
 
 **Interpretación**: el modelo que encontró es SARIMA(0,1,1)(0,1,1)<sub>[12]</sub>
-— nota el `[12]`, ya con el período correcto — y el mejor AIC de los tres
-modelos del script (-483.4).
+— nota el `[12]`, ya con el período correcto — con el AIC más bajo de los
+tres modelos del script (-483.4). Cuidado al comparar: los modelos 1 y 2
+(período 4) y el modelo 3 (período 12) aplican diferencias estacionales de
+distinto lag, por lo que se ajustan con distinta cantidad de observaciones
+efectivas (139 vs 131); el AIC no es estrictamente comparable entre ellos,
+y la preferencia por el modelo 3 se apoya sobre todo en la validación de
+residuales y en que usa el período correcto.
 
 ```{r}
 residual.auto <- auto.ARIMA$residuals
@@ -474,7 +499,19 @@ autoplot(residual.auto) +
 
 forecast::Acf(residual.auto, lag.max=20)
 tabla.Box.Pierce(residuo = residual.auto, max.lag = 20, type = "Ljung-Box")
+```
 
+**Nota sobre Ljung-Box:** `tabla.Box.Pierce()` usa `fitdf = 0`, es decir,
+no descuenta los grados de libertad de los parámetros estimados
+(p+q+P+Q = 2 en este modelo). Eso hace la prueba algo menos exigente de lo
+correcto (los p-valores quedan sobreestimados). Con `fitdf = 2` los
+p-valores de esta tabla bajarían, por ejemplo, de 0.432 a 0.182 en el
+rezago 5, de 0.683 a 0.510 en el 12 y de 0.608 a 0.476 en el 20; ninguno
+pasaría a rechazar, así que la conclusión no cambia. Se dejó la función
+tal cual para no alterar los números ya publicados.
+
+
+```{r}
 forecast::Acf(residual.auto^2, lag.max=20)
 tabla.Box.Pierce(residuo = residual.auto^2, max.lag = 20, type = "Ljung-Box")
 tabla.ARCH.LM(residuo = residual.auto, max.lag = 20)
@@ -489,8 +526,11 @@ tseries::jarque.bera.test(residual.auto)
 p=0.85 ✓), Ljung-Box <strong>no rechaza en ningún rezago probado</strong>
 (p entre 0.36 y 0.95 ✓, a diferencia de los modelos 1 y 2), y
 Jarque-Bera no rechaza (p=0.073 ✓). Es el único de los tres modelos del
-script que pasa los 3 supuestos revisados sin señales de alerta — y
-también tiene el mejor AIC. La razón de fondo es la misma en toda esta
+script que pasa los 4 supuestos revisados (media cero, no autocorrelación,
+varianza constante y normalidad) — con una salvedad: Jarque-Bera con
+p=0.073 es marginal (no rechaza al 5%, pero sí rechazaría al 10%), así que
+la normalidad pasa por poco. También tiene el AIC más bajo (con la
+salvedad de comparabilidad indicada arriba). La razón de fondo es la misma en toda esta
 práctica: los modelos 1 y 2 nunca corrigieron el período estacional
 (paso 7), y `auto.arima()` sí lo encontró bien.
 

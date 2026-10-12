@@ -67,13 +67,26 @@ btc_ret <- diff(log(btc_ts))
 #' ## 2. Proceso de adecuación de las series para hacerlas estacionarias
 #'
 #' Para cada serie se corren las tres pruebas de raíz unitaria (ADF,
-#' Phillips-Perron, KPSS) sobre los precios en niveles, y de nuevo sobre la
-#' serie transformada, hasta lograr un resultado consistente de
-#' estacionariedad en las tres.
+#' Phillips-Perron, KPSS) sobre los precios en niveles, y luego sobre la
+#' serie transformada. Sobre la serie transformada solo se reejecutan ADF y
+#' PP (que comparten la hipótesis nula de raíz unitaria); KPSS se corre
+#' únicamente en niveles, así que el resultado final se apoya en ADF y PP.
+#'
+#' **Advertencia sobre KPSS.** En niveles, KPSS **no rechaza** la
+#' estacionariedad (p ≥ 0.10 en las tres especificaciones, tanto en COLCAP
+#' como en BTC-USD), lo que contradice a ADF y PP (que no rechazan la raíz
+#' unitaria, p entre 0.51 y 0.99). No es una incoherencia: las hipótesis
+#' nulas son opuestas (ADF/PP: H0 = raíz unitaria; KPSS: H0 =
+#' estacionariedad) y con solo 68 observaciones todas las pruebas tienen
+#' poca potencia; en particular KPSS tiende a no rechazar H0 en muestras
+#' pequeñas. Con la regla "2 de 3" las series en niveles se tratan como no
+#' estacionarias (además de que la tendencia y los quiebres son evidentes en
+#' el gráfico), pero se deja constancia de que el veredicto no es unánime.
 #'
 #' **COLCAP — precio.** Sobre el nivel, ADF y PP no rechazan la raíz unitaria
-#' en ninguna especificación (p-valores entre 0.85 y 0.99) — no es
-#' estacionaria. Se aplica logaritmo natural (para estabilizar la varianza) y
+#' en ninguna especificación (p-valores entre 0.85 y 0.99) y KPSS no rechaza
+#' estacionariedad (ver la advertencia arriba); por la regla 2 de 3 se
+#' trata como no estacionaria. Se aplica logaritmo natural (para estabilizar la varianza) y
 #' una diferencia (para quitar la tendencia). Sobre la serie ya transformada
 #' y diferenciada, ADF y PP rechazan la raíz unitaria con claridad
 #' (p ≤ 0.01 en casi todas las especificaciones) — **una sola diferenciación
@@ -100,16 +113,17 @@ forecast::Acf(colcap_ret, main = "ACF - COLCAP (retorno mensual)")
 forecast::Pacf(colcap_ret, main = "PACF - COLCAP (retorno mensual)")
 
 #' **Lectura del gráfico:** con 67 observaciones, la banda de confianza al
-#' 95% ronda ±0.24. Ningún rezago de la ACF ni de la PACF se sale
-#' claramente de esa banda — el más cercano es el rezago 4 de la PACF
-#' (-0.26). Es una señal débil, consistente con que el modelo final
+#' 95% es ±1.96/√67 ≈ ±0.24. Solo el rezago 4 de la PACF (-0.258) excede
+#' levemente esa banda; los rezagos 2 de la ACF (0.233) y de la PACF (0.222)
+#' quedan al borde sin superarla. Es una señal débil, consistente con que el modelo final
 #' (sección 3) resulte en un MA(2) donde solo uno de los dos coeficientes
 #' es significativo: no hay un patrón visual contundente, por eso se
 #' delega la decisión final a `auto.arima()` en vez de fijar p/q a ojo.
 #'
 #' **BTC-USD — precio.** Sobre el nivel, ADF y PP no rechazan la raíz
-#' unitaria en ninguna especificación (p-valores todos > 0.5) — no
-#' estacionaria, de forma incluso más clara que COLCAP. Igual que con
+#' unitaria en ninguna especificación (p-valores todos > 0.5), mientras que
+#' KPSS tampoco rechaza estacionariedad (mismo desacuerdo descrito arriba);
+#' por la regla 2 de 3 se trata como no estacionaria. Igual que con
 #' COLCAP, log + una diferencia bastan para lograr estacionariedad
 #' (p ≤ 0.01 tras la transformación).
 aTSA::adf.test(btc_ts)
@@ -128,9 +142,9 @@ aTSA::pp.test(btc_ret)
 forecast::Acf(btc_ret, main = "ACF - BTC-USD (retorno mensual)")
 forecast::Pacf(btc_ret, main = "PACF - BTC-USD (retorno mensual)")
 
-#' **Lectura del gráfico:** con la misma banda de ±0.24, **ningún rezago
+#' **Lectura del gráfico:** con la misma banda (±0.24), **ningún rezago
 #' de la ACF ni de la PACF se sale de la banda** en ningún punto hasta el
-#' rezago 12 — a diferencia de COLCAP, ni siquiera hay un candidato
+#' rezago 12 (el máximo en valor absoluto es 0.187) — a diferencia de COLCAP, ni siquiera hay un candidato
 #' "cercano". Es la confirmación visual de que el modelo final (sección
 #' 3) es ruido blanco puro: no hay ningún patrón que identificar.
 #'
@@ -139,8 +153,11 @@ forecast::Pacf(btc_ret, main = "PACF - BTC-USD (retorno mensual)")
 #' Para las 4 series (COLCAP precio, COLCAP retorno, BTC precio, BTC
 #' retorno) se usa `auto.arima()` con `stepwise=FALSE` (explora todas las
 #' combinaciones de p y q, no solo un atajo) sobre la serie ya adecuada del
-#' punto 2 — para las series de precio, con `lambda=0` para que el
-#' pronóstico revierta la transformación logarítmica automáticamente.
+#' punto 2. Para las series de precio se pasa el precio original con
+#' `lambda=0`: `auto.arima()` aplica internamente el logaritmo (Box-Cox con
+#' lambda=0), ajusta sobre log(precio) y `forecast()` des-transforma el
+#' pronóstico (que resulta ser la mediana, no la media, salvo
+#' `biasadj=TRUE`).
 #'
 #' ### 3.1 COLCAP — precio
 modelo_colcap_precio <- forecast::auto.arima(colcap_ts, stepwise = FALSE, lambda = 0)
@@ -276,9 +293,11 @@ forecast::autoplot(pron_colcap_precio) +
 
 #' **Interpretación del primer valor pronosticado:** para septiembre de
 #' 2026 se espera un COLCAP de **2,485.4 puntos** (intervalo 95%: entre
-#' 2,245.6 y 2,750.8) — apenas por debajo del cierre real de agosto 2026
-#' (2,425.1), lo que es consistente con una parte MA(2) con coeficiente
-#' negativo en el primer rezago. Octubre y noviembre convergen al mismo
+#' 2,245.6 y 2,750.8) — ligeramente por encima (+2.5%) del cierre real de
+#' agosto 2026 (2,425.1), coherente con el +2.46% de retorno de la sección
+#' 5.2. El pronóstico a un paso depende de los residuales recientes
+#' ponderados por ma1 (-0.129, no significativo) y ma2 (+0.534, que domina).
+#' Octubre y noviembre convergen al mismo
 #' valor (2,473.5), porque un modelo puramente MA(2) deja de "recordar"
 #' información después de 2 períodos.
 #'
@@ -307,8 +326,12 @@ forecast::autoplot(pron_btc_precio) +
 #' precio observado (agosto 2026), porque el modelo es un random walk sin
 #' deriva: la mejor predicción de mañana es el valor de hoy. Octubre y
 #' noviembre repiten el mismo punto central, con **intervalos de confianza
-#' que se ensanchan mes a mes** (de ±30,627 a 80% en septiembre hasta
-#' ±59,904 en noviembre) — cada mes adicional acumula más incertidumbre sin
+#' que se ensanchan mes a mes** (al 95%, de
+#' [56,526; 109,152] en septiembre a [44,426; 138,880] en noviembre; al 80%,
+#' de [63,344; 97,403] en septiembre a [54,114; 114,017] en noviembre). Los
+#' intervalos no son simétricos alrededor del punto central: con `lambda=0`
+#' se construyen en escala logarítmica y luego se exponencian, por lo que
+#' son log-normales (más amplios hacia arriba que hacia abajo). Cada mes adicional acumula más incertidumbre sin
 #' que el modelo tenga ninguna señal direccional que la reduzca.
 #'
 #' ### 5.4 BTC-USD — retorno mensual
@@ -325,10 +348,16 @@ forecast::autoplot(pron_btc_retorno) +
 #' esperado", con toda la incertidumbre reflejada en un intervalo muy
 #' amplio.
 #'
-#' **Conclusión general.** COLCAP mostró algo de estructura explotable (un
-#' MA(2) con el segundo rezago significativo), mientras que Bitcoin no
-#' mostró ninguna — ni en precio (random walk puro) ni en retorno (ruido
-#' blanco). Es un resultado consistente con la hipótesis de mercados
-#' eficientes vista en clase: cuanto más líquido y global es un activo, más
-#' rápido se incorpora la información nueva al precio, dejando menos
-#' estructura predecible en su propia historia.
+#' **Conclusión general.** COLCAP mostró cierta estructura lineal en la media
+#' en muestra (un MA(2) con el segundo rezago significativo; AIC -202.0 frente
+#' a -195.6 del ruido blanco), mientras que Bitcoin no mostró ninguna — ni en
+#' precio (random walk puro) ni en retorno (ruido blanco). Conviene matizar:
+#' (i) en COLCAP la evidencia es modesta, pues el Ljung-Box del retorno crudo
+#' no rechaza (p = 0.09 en el rezago 2 y 0.22 en el 12), y no se validó fuera
+#' de muestra ni se consideraron costos de transacción, así que llamarla
+#' "estructura explotable" sería excesivo; (ii) un resultado de ruido blanco
+#' con n = 67 solo indica ausencia de predictibilidad lineal en la media
+#' (consistente con eficiencia en sentido débil) y con poca potencia
+#' estadística: no demuestra eficiencia de mercado; (iii) atribuir la
+#' diferencia entre ambos activos a que Bitcoin es "más líquido y global" es
+#' una hipótesis plausible, pero esta muestra no la prueba.

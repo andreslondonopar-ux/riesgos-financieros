@@ -53,39 +53,54 @@ retornos <- TTR::ROC(precio,
 
 ## 2.1 Probando la existencia de raices unitarias ----
 
-precio %>% aTSA::adf.test()
-precio %>% aTSA::pp.test()
-precio %>% aTSA::kpss.test()
+# Se pasa un vector numerico (as.numeric) y no el objeto xts: aTSA::adf.test
+# sobre un xts produce un artefacto (estadisticos positivos y crecientes con
+# el rezago, p=0.99) que no corresponde a la serie real.
+precio.num <- as.numeric(precio)
+retornos.num <- as.numeric(retornos)
 
-retornos %>% aTSA::adf.test()
-retornos %>% aTSA::pp.test()
-retornos %>% aTSA::kpss.test()
+precio.num %>% aTSA::adf.test()
+precio.num %>% aTSA::pp.test()
+precio.num %>% aTSA::kpss.test()
 
-#' **Interpretación**: sobre el **precio** (en niveles), ADF y PP no rechazan
-#' la hipótesis nula de raíz unitaria en ninguna especificación (p≈0.99) — el
-#' precio no es estacionario, como se espera de cualquier serie de precios con
-#' tendencia.
+retornos.num %>% aTSA::adf.test()
+retornos.num %>% aTSA::pp.test()
+retornos.num %>% aTSA::kpss.test()
+
+#' **Interpretación**: sobre el **precio** (en niveles), ADF y PP **no
+#' rechazan** la hipótesis nula de raíz unitaria en las especificaciones sin
+#' tendencia: ADF tipo 1 (sin constante ni tendencia) con p≈0.84-0.87 y tipo 2
+#' (con constante) con p≈0.26-0.31 según el rezago; PP tipo 1 con p≈0.78 y tipo
+#' 2 con p≈0.27. Con eso el precio se trata como **no estacionario**, como se
+#' espera de cualquier serie de precios con tendencia. Dos matices: (i) en el
+#' tipo 3 (constante + tendencia) tanto ADF (p≈0.01-0.02) como PP (p≤0.01)
+#' sí rechazan — es decir, el precio sería, a lo sumo, estacionario *alrededor
+#' de una tendencia determinista*, no estacionario en sentido estricto; y (ii)
+#' KPSS (H0 = estacionario) tampoco rechaza (p≥0.10) en ninguna
+#' especificación, de modo que las pruebas no son unánimes y la serie es corta
+#' (667 observaciones, un período con tendencia alcista marcada). Por eso la
+#' conclusión "precio no estacionario" se apoya en ADF y PP tipos 1-2 y se
+#' acompaña de estos matices; en cualquier caso, lo relevante para modelar es
+#' trabajar con los retornos.
 #'
-#' Sobre los **retornos** aparece un caso real e ilustrativo: **ADF y PP no
-#' coinciden**. ADF **no rechaza** raíz unitaria en ninguna especificación
-#' (p≈0.99 en las tres) — sugeriría, de forma engañosa, que los retornos no
-#' son estacionarios. PP, en cambio, **sí rechaza** con fuerza (p≤0.01) y
-#' KPSS (que prueba lo contrario: H0 = estacionario) tampoco rechaza
-#' (p≥0.10) — ambas coinciden en que los retornos **sí son estacionarios**,
-#' como se espera de una serie que es, de hecho, la primera diferencia del
-#' log-precio.
+#' Sobre los **retornos**, las tres pruebas coinciden: ADF **rechaza** raíz
+#' unitaria con fuerza en las tres especificaciones y en todos los rezagos
+#' (estadísticos de -24.8 en el rezago 0 a -10.4 en el rezago 6, p≤0.01), PP
+#' también rechaza (p≤0.01 en los tres tipos) y KPSS (H0 = estacionario) no
+#' rechaza (p≥0.10). Los retornos **sí son estacionarios**, como se espera de
+#' una serie que es, de hecho, la primera diferencia del log-precio. Nota
+#' técnica: las pruebas se corren sobre el vector numérico (`as.numeric()`);
+#' pasarle a `aTSA::adf.test()` el objeto `xts` directamente produce un
+#' artefacto (estadísticos positivos y crecientes con el rezago, p=0.99) que
+#' no refleja la serie real.
 #'
-#' Esta discrepancia no es un error de los datos: es exactamente el
-#' fenómeno de **pérdida de potencia de ADF bajo heterocedasticidad** — ADF
-#' asume varianza constante en su regresión auxiliar, y la sección 1.1
-#' (siguiente) confirma con ARCH-LM que estos retornos **sí tienen
-#' heterocedasticidad** desde el primer rezago. Cuando ese supuesto de ADF
-#' falla, la prueba se vuelve más propensa a error tipo 2 (no rechazar raíz
-#' unitaria cuando debería) — PP, al ser robusta a varianza no constante,
-#' no sufre ese sesgo. Por eso, para series con heterocedasticidad conocida
-#' (como retornos financieros), conviene apoyarse en PP/KPSS por encima de
-#' ADF. Con esto queda justificado trabajar directamente con los retornos
-#' para el modelo ARIMA (d=0).
+#' Como teoría general, ADF puede perder potencia cuando hay heterocedasticidad
+#' fuerte (su regresión auxiliar asume varianza constante) y PP/KPSS son más
+#' robustas a ese problema; sin embargo, **en estos datos eso no aplica**:
+#' aunque la sección 1.1 (siguiente) confirma con ARCH-LM que los retornos sí
+#' son heteroscedásticos, ADF rechaza igual y de forma contundente, sin
+#' discrepancia con PP ni KPSS. Con esto queda justificado trabajar
+#' directamente con los retornos para el modelo ARIMA (d=0).
 #'
 #' ## 1.1 Heterocedasticidad, antes de ajustar cualquier modelo
 tabla.ARCH.LM(residuo = retornos)
@@ -218,14 +233,17 @@ jarque.bera.test(residuales.arch)
 #' estandarizado** (zₜ = εₜ/σ̂ₜ, dividiendo cada retorno por la volatilidad que
 #' el propio ARCH(1) estimó para ese día) — el diagnóstico correcto de un
 #' modelo de volatilidad no se hace sobre los residuales crudos, sino sobre
-#' estos. Resultado: media (p=0.34) y autocorrelación en la media (p entre
-#' 0.31 y 0.48) siguen bien. Pero en la varianza (Ljung-Box y ARCH-LM sobre
-#' zₜ²) los primeros 3 rezagos ya pasan (p>0.39), y **el rezago 4 empieza a
-#' fallar** (p≈0.035-0.038) — el ARCH(1), con solo un rezago, no alcanza a
-#' capturar del todo la persistencia de la volatilidad a un poco más de
-#' plazo. Exactamente la limitación de ARCH vista en teoría: para capturar
-#' más persistencia hace falta más rezagos (menos parsimonioso), o pasar a
-#' GARCH.
+#' estos. Resultado: media (p=0.34) y autocorrelación en la media (rezagos 1
+#' a 5: p = 0.95, 0.31, 0.49, 0.48, 0.48) siguen bien. En la varianza
+#' (Ljung-Box y ARCH-LM sobre zₜ²) los primeros 3 rezagos pasan (p>0.39), el
+#' **rezago 4 falla puntualmente** (Ljung-Box p=0.035, ARCH-LM p=0.038), el 5
+#' es marginal (p=0.060 y 0.071) y del rezago 6 en adelante vuelve a pasar;
+#' los contrastes a rezagos largos del resumen de `fGarch`, Q(10), Q(15) y
+#' Q(20) sobre R², también pasan (p entre 0.21 y 0.58). Es decir, el ARCH(1)
+#' deja a lo sumo un residuo menor de estructura en el rezago 4 — no una
+#' falla generalizada. La limitación teórica de ARCH (una memoria corta,
+#' que para capturar más persistencia exigiría más rezagos o pasar a GARCH)
+#' se ve aquí de forma leve.
 #'
 #' ## 3.2 Volatilidad estimada por el ARCH(1)
 ## 4.3. Volatilidad estimada por el modelo ARCH ----
@@ -248,9 +266,10 @@ predict(object = f.arch, n.ahead = 5, plot = T, p_loss = 0.05)
 #' 5 períodos (coherente con el ARIMA(0,0,0) — sin estructura, no hay nada
 #' que pronosticar salvo la media cero). Lo que sí cambia es la **volatilidad**
 #' pronosticada: empieza en ≈3.03% y decae hacia ≈2.22% en el quinto período —
-#' el ARCH(1) "olvida" rápido el nivel de volatilidad reciente y converge
-#' hacia su volatilidad de largo plazo, precisamente porque solo tiene un
-#' rezago de memoria.
+#' el ARCH(1) converge hacia su volatilidad de largo plazo (≈2.19%, ver
+#' √(ω/(1−α))). La velocidad de esa convergencia la fija α₁ (0.42 aquí): el
+#' pronóstico a h pasos converge a razón de α₁^h, no depende de "cuántos
+#' rezagos" tiene el modelo.
 #'
 #' ## 4. Volatilidad con modelo GARCH(1,1)
 # 5. Volatilidad con modelo GARCH(1,1) ---------------------------------------
@@ -271,8 +290,16 @@ summary(garch.arma)
 #'
 #' α₁+β₁ ≈ 0.65 — bien por debajo de 1 (modelo estable) y con persistencia
 #' moderada. β₁ (el término que le da "memoria de sí mismo" al modelo, ver
-#' sección 3 del apunte de EWMA/ARCH-GARCH) es significativo al 10%, aunque
-#' menos fuerte que α₁.
+#' sección 3 del apunte de EWMA/ARCH-GARCH) es significativo solo al 10%
+#' (p=0.061), **no** al 5%, y mucho menos fuerte que α₁.
+#'
+#' **Restricciones y varianza de largo plazo**: para que el GARCH(1,1) esté
+#' bien definido y sea estacionario se exige ω>0, α≥0, β≥0 y α+β<1; aquí se
+#' cumplen todas (ω=0.000178, α=0.392, β=0.259, α+β=0.651). Cuando se cumplen,
+#' la varianza incondicional (de largo plazo) es ω/(1−α−β) =
+#' 0.00017751/(1−0.65116) ≈ 0.000509, es decir, una volatilidad diaria de
+#' largo plazo σ ≈ 2.26%. Para el ARCH(1) la fórmula es √(ω/(1−α)) =
+#' √(0.00027712/(1−0.42290)) ≈ 2.19%.
 #'
 #' ## 4.1 Validando los residuales estandarizados del GARCH(1,1)
 residuales.garch <- fGarch::residuals(object = garch.arma, standardize = T)
@@ -286,14 +313,26 @@ tabla.ARCH.LM(residuo = residuales.garch)
 
 jarque.bera.test(residuales.garch)
 
-#' **Interpretación — el punto clave de esta clase**: con el GARCH(1,1), el
-#' rezago 4 de la varianza (Ljung-Box y ARCH-LM sobre zₜ²) **ya no rechaza**
-#' (p≈0.09-0.10, frente a p≈0.035-0.038 del ARCH(1)) — y lo mismo se confirma
-#' con el resumen nativo de `fGarch` a rezagos más largos (Q(10), Q(15),
-#' Q(20) sobre R² con p entre 0.36 y 0.72, todos sin rechazar). El GARCH(1,1)
-#' deja **menos estructura sin explicar** que el ARCH(1) — exactamente la
-#' ventaja teórica de GARCH (equivalente a un ARCH de muchísimos rezagos, con
-#' solo 2 parámetros) puesta a prueba con datos reales. Ninguno de los dos
+#' **Interpretación — comparación honesta ARCH(1) vs GARCH(1,1)**: con el
+#' GARCH(1,1), el rezago 4 de la varianza (Ljung-Box y ARCH-LM sobre zₜ²) ya
+#' no rechaza (p≈0.09-0.10, frente a p≈0.035-0.038 del ARCH(1)), y a rezagos
+#' más largos el resumen nativo de `fGarch` muestra Q(10), Q(15), Q(20) sobre
+#' R² con p entre 0.36 y 0.72 (ARCH(1): entre 0.21 y 0.58) — en ambos casos
+#' sin rechazar. Pero la ventaja es **pequeña**, no decisiva:
+#'
+#' - **Ajuste**: log-verosimilitud 1671.81 (ARCH) vs 1672.03 (GARCH), una
+#'   ganancia de solo 0.21 a cambio de un parámetro más; AIC -5.0145 (ARCH) vs
+#'   -5.0121 (GARCH) y BIC -5.0009 vs -4.9918: ambos criterios favorecen al
+#'   ARCH(1).
+#' - **Significancia**: β₁ = 0.259 tiene p=0.061, no significativo al 5%.
+#' - **Residuos del ARCH(1)**: la falla se limita al rezago 4 (Ljung-Box
+#'   p=0.035, ARCH-LM p=0.038); el rezago 5 es marginal (0.060 y 0.071), del 6
+#'   en adelante pasa, y Q(10/15/20) pasan con p entre 0.21 y 0.58.
+#'
+#' La ventaja teórica de GARCH(1,1) es que equivale a un ARCH de infinitos
+#' rezagos con pesos decrecientes, usando **3 parámetros** (ω, α, β) — en
+#' general, 1+p+q — en vez de muchos rezagos; en esta muestra corta
+#' (666 observaciones) esa ventaja apenas se materializa. Ninguno de los dos
 #' modelos arregla la normalidad (ambos rechazan Jarque-Bera con fuerza) —
 #' pero, como ya se vio, ese es el supuesto menos crítico de los cuatro.
 #'
@@ -319,9 +358,18 @@ predict(object = garch.arma,
 
 #' **Interpretación**: la volatilidad pronosticada por GARCH(1,1) va de
 #' ≈2.93% a ≈2.39% en 5 períodos — decae más **lento** que la del ARCH(1)
-#' (3.03%→2.22%), justo la propiedad de mayor persistencia que le da el
-#' término β₁ (memoria de la propia varianza pasada, no solo del último
-#' error).
+#' (3.03%→2.22%). La velocidad a la que el pronóstico converge a la
+#' volatilidad de largo plazo la fija la persistencia: α₁ = 0.42 en el
+#' ARCH(1) frente a α₁+β₁ = 0.65 en el GARCH(1,1) (el pronóstico a h pasos
+#' converge a razón de (α+β)^h), no el número de rezagos. Ambos convergen
+#' hacia su propia volatilidad de largo plazo (≈2.19% el ARCH, ≈2.26% el
+#' GARCH).
+#'
+#' Las tablas `VaR` y `ES` que devuelve `predict(..., p_loss = 0.05)` son el
+#' VaR y la pérdida esperada (Expected Shortfall) al 95% de cada horizonte,
+#' proporcionales a la desviación estándar pronosticada: por eso también
+#' decrecen con el horizonte (en el GARCH, VaR de ≈4.82% a ≈3.93% y ES de
+#' ≈6.05% a ≈4.93%).
 #'
 #' ## 4.3 Comparando el camino completo: in-sample + pronóstico
 ## 5.4. Grafico de prediccion de la volatilidad ----
@@ -357,10 +405,25 @@ abline(v = length(sigma_in), col = "black", lty = 3)
 #' |---|---|---|---|
 #' | Qué modela | La media (nada que modelar aquí) | Varianza, 1 rezago de memoria | Varianza, memoria de sí misma + 1 rezago |
 #' | Autocorrelación en la media | Resuelta | — | — |
-#' | Heterocedasticidad (varianza²) | Sin resolver (p<0.01) | Parcial (falla desde rezago 4) | Resuelta en los rezagos probados |
+#' | Heterocedasticidad (varianza²) | Sin resolver (p<0.01) | Casi resuelta: solo falla puntualmente en el rezago 4 (p≈0.035-0.038), el 5 es marginal (p≈0.06-0.07) y del 6 en adelante pasa; Q(10/15/20) pasan (p entre 0.21 y 0.58) | Resuelta en los rezagos probados (p≥0.09 en el rezago 4; Q(10/15/20) con p entre 0.36 y 0.72) |
+#' | Ajuste (log-verosimilitud / AIC / BIC) | — | 1671.81 / -5.0145 / -5.0009 | 1672.03 / -5.0121 / -4.9918 |
+#' | Parámetros de la varianza | — | 2 (ω, α) | 3 (ω, α, β); β=0.259 con p=0.061 (no significativo al 5%) |
 #' | Normalidad | — | No se cumple | No se cumple |
 #'
+#' En estos datos la diferencia entre ARCH(1) y GARCH(1,1) es **pequeña**: el
+#' GARCH mejora la log-verosimilitud en apenas 0.21 puntos al costo de un
+#' parámetro adicional, y por eso AIC y BIC (que penalizan parámetros)
+#' favorecen ligeramente al ARCH(1), el modelo más parsimonioso. El GARCH deja
+#' algo menos de estructura residual en el rezago 4, pero el ARCH(1) tampoco
+#' queda mal validado: su falla es puntual y los contrastes a rezagos largos
+#' pasan. Por tanto, con esta muestra **no hay evidencia sólida de que
+#' GARCH(1,1) supere a ARCH(1)**.
+#'
 #' El flujo completo de esta clase — eficiencia de mercado (ARIMA vacío) →
-#' heterocedasticidad detectada con ARCH-LM → ARCH(1) insuficiente en
-#' rezagos largos → GARCH(1,1) sí la captura — es el mismo patrón que se vio
-#' en teoría, ahora confirmado con datos reales de AMZN.
+#' heterocedasticidad detectada con ARCH-LM → ARCH(1) captura la mayor parte
+#' de la dinámica de la varianza → GARCH(1,1) la captura un poco mejor en el
+#' rezago 4, sin una mejora decisiva — es el mismo patrón que se vio en teoría.
+#' Como regla práctica general, se recomienda empezar por un GARCH(1,1), que
+#' rara vez necesita más y suele describir bien la persistencia de la
+#' volatilidad en series financieras más largas; aquí, con solo 666
+#' observaciones, la parsimonia del ARCH(1) compite bien.

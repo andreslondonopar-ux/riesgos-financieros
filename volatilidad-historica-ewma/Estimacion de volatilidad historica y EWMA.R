@@ -84,8 +84,10 @@ describe(x = zoo::coredata(retornos),
 #' tendencia alcista del precio en el período), desviación estándar diaria
 #' ≈2.04% (una acción individual, más volátil que un índice amplio). El
 #' mínimo (-9.41%, el 2025-04-03) y el máximo (+14.25%, el 2026-07-31) no
-#' son simétricos — la asimetría (*skew*≈0.52, positiva) y la curtosis
-#' (≈6.62, muy por encima de 3) confirman el mismo hecho estilizado de
+#' son simétricos — la asimetría (*skew*≈0.52, positiva) y el **exceso de
+#' curtosis** (≈6.62, que es lo que reporta `psych::describe`; equivale a una
+#' curtosis ≈9.62, frente a 0 de la normal si se mide en exceso, o frente a 3
+#' si se mide la curtosis total) confirman el mismo hecho estilizado de
 #' colas pesadas que ya vimos en el módulo de ARIMA: la distribución real
 #' de retornos no es normal.
 #'
@@ -116,7 +118,7 @@ dens
 #' **Interpretación**: la curva negra (densidad real, suavizada) es más
 #' alta y angosta en el centro que la curva roja (normal teórica con la
 #' misma media/varianza), y tiene colas más largas — justo lo que
-#' anticipaba la curtosis alta de la tabla anterior. Confirma visualmente
+#' anticipaba el exceso de curtosis alto de la tabla anterior. Confirma visualmente
 #' por qué no conviene asumir normalidad al calcular medidas de riesgo
 #' (VaR, por ejemplo) sobre estos retornos.
 #'
@@ -146,7 +148,7 @@ p.VolHist
 #' ve cada vez más plana/estable hacia el final — con más datos acumulados,
 #' un solo día extremo pesa cada vez menos en el promedio. Es la forma más
 #' simple de estimar volatilidad, pero reacciona muy lento a cambios
-#' recientes del mercado — justo la limitación que EWMA (sección 4) viene
+#' recientes del mercado — justo la limitación que EWMA (sección 3) viene
 #' a resolver.
 #'
 #' ## 2.1 Volatilidad histórica vía retornos al cuadrado
@@ -298,8 +300,12 @@ p.EWMA.94
 #' **Interpretación (λ=0.94)**: es el valor clásico que popularizó
 #' RiskMetrics (J.P. Morgan) para datos diarios — un balance entre
 #' reactividad y estabilidad. Se ve mucho más sensible a picos puntuales
-#' que la volatilidad expansiva (sección 2), pero más suave que la ventana
-#' móvil de 20 días (sección 2.2).
+#' que la volatilidad expansiva (sección 2). Frente a la ventana móvil de 20
+#' días (sección 2.2) la reactividad es comparable: la memoria efectiva de
+#' λ=0.94 es ≈1/(1−λ) ≈ 17 días, del mismo orden que una ventana de 20. La
+#' diferencia es de forma, no de suavidad: EWMA pondera con pesos que decaen
+#' exponencialmente, mientras que la ventana móvil pesa igual a los 20 días y
+#' luego descarta de golpe al día que sale.
 #'
 #' ## 3.1 EWMA con λ calculado a partir del tamaño de muestra
 ## 4.2. lambda a partir de la cantidad de datos ----

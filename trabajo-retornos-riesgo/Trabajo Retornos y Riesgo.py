@@ -96,9 +96,13 @@ for accion in acciones:
 # (`log(1+r) ~ r`). La diferencia solo se nota en los meses de movimientos
 # extremos (por ejemplo, la caida de marzo de 2020 por COVID-19, visible en
 # las 5 series), donde el retorno continuo queda ligeramente por debajo del
-# discreto en las caidas fuertes y ligeramente por debajo tambien en las
-# subidas fuertes -- consistente con que el logaritmo comprime valores
-# extremos de forma asimetrica.
+# discreto en las caidas fuertes y tambien por debajo en las subidas
+# fuertes (siempre `log(1+r) < r`). Pero el efecto es distinto en cada
+# direccion: en las alzas el logaritmo *comprime* el valor (un +20% discreto
+# es +18.2% continuo), mientras que en las caidas lo *amplifica* en magnitud
+# (un -20% discreto es -22.3% continuo). Es decir, la compresion solo ocurre
+# en las subidas; en las caidas el retorno continuo es mas negativo que el
+# discreto.
 
 # %% [markdown]
 # ## 3. Calculo de las estadisticas descriptivas de los retornos continuos
@@ -112,17 +116,26 @@ estadisticas
 # %% [markdown]
 # **Analisis:** con 120 retornos mensuales por accion (10 anos), **AAPL tiene
 # el mayor rendimiento promedio** (2.12%/mes, ~25% anualizado) seguido de
-# **JPM** (1.61%/mes). Las tres acciones "defensivas" del grupo -- XOM, KO y
-# JNJ -- rondan un rendimiento promedio mucho mas bajo (0.87-0.91%/mes), como
-# se esperaria de sectores menos ciclicos que la tecnologia. En volatilidad
+# **JPM** (1.61%/mes). Las otras tres acciones -- XOM, KO y JNJ -- rondan un
+# rendimiento promedio mucho mas bajo (0.89-0.91%/mes: XOM 0.887%, KO 0.886%,
+# JNJ 0.912%). KO y JNJ son sectores defensivos (consumo basico y salud), lo
+# que es coherente con un menor rendimiento que la tecnologia; XOM, en cambio,
+# es energia, un sector ciclico (como se comenta en la seccion 7), asi que su
+# bajo rendimiento no se explica por ser defensiva. En volatilidad
 # (desviacion estandar), **XOM es la mas volatil** (8.12%/mes) pese a no ser
 # tecnologica -- consistente con su exposicion directa al precio del petroleo
 # -- mientras que **KO es la menos volatil** (4.76%/mes), el perfil clasico de
 # consumo defensivo. En cuanto a la forma de la distribucion, **KO muestra el
-# sesgo negativo mas fuerte** (skew = -0.83, con curtosis alta de 1.87) --
+# sesgo negativo mas fuerte** (skew = -0.83, con exceso de curtosis de 1.87) --
 # caidas ocasionales bruscas frente a subidas mas graduales -- mientras que
 # JNJ y AAPL tienen distribuciones bastante mas cercanas a la simetria
-# (skew cerca de 0).
+# (skew cerca de 0). **Nota sobre la curtosis:** la tabla de esta seccion
+# usa `pandas.kurtosis()`, que reporta el *exceso* de curtosis (normal = 0) con
+# correccion de sesgo muestral (KO = 1.87); la tabla de Jarque-Bera de la
+# seccion 5 reporta la curtosis *cruda* de `statsmodels` (normal = 3, KO = 4.74).
+# No son contradictorias: miden la misma cosa con distinta convencion (la
+# cruda menos 3 da 1.74 para KO, que difiere de 1.87 solo por la correccion
+# de sesgo).
 
 # %% [markdown]
 # ## 4. Elaboracion del histograma de los retornos continuos
@@ -138,9 +151,12 @@ for accion in acciones:
 # %% [markdown]
 # **Analisis:** los histogramas confirman visualmente lo que ya mostraban las
 # estadisticas descriptivas: AAPL y JNJ tienen formas relativamente
-# simetricas y acampanadas, cercanas a una normal; JPM y XOM muestran una
-# cola izquierda visiblemente mas larga que la derecha (consistente con su
-# kurtosis alta, cerca de 2); y KO es el caso mas marcado -- una
+# simetricas y acampanadas, cercanas a una normal; JPM muestra una cola
+# izquierda algo mas larga que la derecha (skew = -0.46) y colas pesadas
+# (exceso de curtosis de 1.45); XOM, en cambio, es casi simetrico (skew = -0.18,
+# una asimetria debil), y su exceso de curtosis (1.96) refleja colas pesadas
+# en *ambos* lados -- extremos de -30.4% y +23.8% -- mas que una cola izquierda
+# claramente mas larga; y KO es el caso mas marcado -- una
 # concentracion fuerte de retornos positivos moderados con algunos meses de
 # caida muy pronunciada que estiran la cola izquierda, el reflejo grafico de
 # su skew de -0.83.
@@ -168,8 +184,10 @@ tabla_jb
 # %% [markdown]
 # **Conclusion:** con un nivel de significancia del 5%, la prueba **no
 # rechaza la normalidad para AAPL** (p = 0.464) **ni para JNJ** (p = 0.922) --
-# sus retornos mensuales son estadisticamente compatibles con una
-# distribucion normal. Para **JPM** (p = 0.0013), **XOM** (p = 0.00016) y
+# sus retornos mensuales no contradicen una distribucion normal. Ojo: no
+# rechazar H0 no demuestra normalidad; con solo n = 120 la prueba JB tiene
+# poca potencia, asi que lo correcto es decir que no hay evidencia suficiente
+# para descartarla, no que se haya probado. Para **JPM** (p = 0.0013), **XOM** (p = 0.00016) y
 # **KO** (p < 0.0001) la prueba **si rechaza H0**: sus retornos muestran
 # suficiente asimetria y/o exceso de curtosis para descartar la normalidad
 # con alta confianza -- KO es el caso mas extremo, con el estadistico JB mas
@@ -207,9 +225,17 @@ tabla_ic
 # no es simplemente ruido de muestreo alrededor de un rendimiento esperado
 # nulo. El unico caso del grupo donde el intervalo **si incluye el 0** es
 # **XOM** ([-0.58%, 2.36%]): para el petroleo no se puede rechazar, al 95% de
-# confianza, que su verdadero rendimiento promedio sea cero -- coherente con
-# ser el activo mas volatil del grupo (mas ruido, intervalo mas ancho) y con
-# el menor rendimiento promedio observado.
+# confianza, que su verdadero rendimiento promedio sea cero -- y esto se explica sobre todo por su
+# desviacion estandar (8.1%/mes, la mas alta del grupo: error estandar de
+# 0.74% frente a 0.43% de KO), que ensancha el intervalo. No se debe a que
+# tenga el menor rendimiento promedio: su media (0.887%) es practicamente
+# igual a la de KO (0.886%, ligeramente menor) y a la de JNJ (0.912%).
+# 
+# **Casos limite:** los intervalos de **JNJ** (limite inferior 0.019%) y de
+# **KO** (limite inferior 0.024%) excluyen el 0 por muy poco, de modo que su
+# significancia es marginal y fragil (un dato distinto o una muestra algo
+# mas corta podria incluir el cero); la conclusion de que su rendimiento
+# promedio es positivo es mucho mas solida para AAPL y JPM.
 
 # %% [markdown]
 # ## 7. La matriz de correlaciones de los retornos continuos

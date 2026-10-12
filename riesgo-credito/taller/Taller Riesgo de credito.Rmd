@@ -49,7 +49,7 @@ pd.crosstab(index=loan_data["grade"], columns=loan_data["loan_status"], margins=
 pd.crosstab(index=loan_data["grade"], columns=loan_data["loan_status"], normalize="index").round(3)
 ```
 
-La proporción de default crece de forma monótona al pasar de la calificación A (mejor) a G (peor): la calificación sí discrimina el riesgo.
+La proporción de default crece de forma monótona al pasar de la calificación A (mejor) a G (peor): 5.9 %, 10.6 %, 14.7 %, 18.0 %, 20.3 %, 26.5 % y 37.5 % (A a G). La calificación sí discrimina el riesgo. Ojo: la categoría G tiene solo 56 casos, así que su proporción de 37.5 % es poco precisa (un intervalo de confianza amplio).
 
 ## Parte 2
 ### 3. Histograma de la cantidad prestada
@@ -78,7 +78,7 @@ plt.title("Histograma de la cantidad prestada"); plt.xlabel("Cantidad prestada")
 plt.show()
 ```
 
-**¿Por qué ocurren los picos donde ocurren?** Con más cortes aparecen picos regulares en montos “redondos” (10.000, 5.000, 6.000, 12.000, 15.000, 8.000…; el más frecuente es 10.000 con 2.372 préstamos). Los préstamos no se piden en montos continuos: tanto los solicitantes como la entidad tienden a pedir y aprobar cifras redondas, por lo que la cantidad prestada se concentra en esos valores y no se reparte de forma suave.
+**¿Por qué ocurren los picos donde ocurren?** Con más cortes aparecen picos regulares en montos “redondos”. El más frecuente es 10.000 con 2.372 préstamos, seguido de 5.000 (1.798), 6.000 (1.629), 12.000 (1.594), 15.000 (1.334) y 8.000 (1.304). Solo hay 753 valores distintos de monto, y el 74 % de los montos son múltiplos de 500 y el 64 % múltiplos de 1.000. Los préstamos no se piden en montos continuos: tanto los solicitantes como la entidad tienden a pedir y aprobar cifras redondas, por lo que la cantidad prestada se concentra en esos valores y no se reparte de forma suave.
 
 ### 6. Diagrama de dispersión de la edad
 
@@ -90,7 +90,7 @@ print("Edad máxima:", loan_data["age"].max())
 ```
 
 ### 7. Eliminar la observación de la persona con edad imposible
-El enunciado habla de 122 años; en esta versión de la base la edad máxima es 144. Es el mismo caso (un error de captura), así que se elimina esa observación atípica (edad > 100).
+En esta versión de la base no existe la edad 122 que menciona el enunciado. El único atípico es de 144 años (fila 19486, que además tiene un ingreso de 6.000.000); la siguiente edad más alta es 94. Se elimina esa observación (edad > 100), quedando 29.091 filas.
 
 ```{python}
 print(loan_data[loan_data["age"] > 100])
@@ -139,9 +139,12 @@ print(loan_data_delrow_na["int_rate"].isna().sum(), loan_data_replace["int_rate"
 ### 13. Variable `ir_cat`
 
 ```{python}
-cortes = [0, 8, 11, 13.5, np.inf]
+# Convención: intervalos cerrados a la derecha (a, b], igual que emp_cat en clase (right=True).
+# Las etiquetas "0-8", "8-11"... se leen como (0,8], (8,11], (11,13.5], (13.5,inf).
+# El límite inferior es -1 solo para incluir el 0; una tasa exactamente 8.00 queda en "0-8".
+cortes = [-1, 8, 11, 13.5, np.inf]
 etiquetas = ["0-8", "8-11", "11-13.5", "13.5+"]
-loan_data["ir_cat"] = pd.cut(loan_data["int_rate"], bins=cortes, labels=etiquetas, right=False)
+loan_data["ir_cat"] = pd.cut(loan_data["int_rate"], bins=cortes, labels=etiquetas, right=True)
 loan_data["ir_cat"] = loan_data["ir_cat"].cat.add_categories("missing")
 loan_data.loc[loan_data["int_rate"].isna(), "ir_cat"] = "missing"
 loan_data["ir_cat"].value_counts(sort=False)
@@ -194,4 +197,6 @@ print(f"Sensibilidad:         {sensibilidad:.2%}")
 print(f"Especificidad:        {especificidad:.2%}")
 ```
 
-Como `model_pred` es aleatorio (independiente de la realidad), sensibilidad ≈ 20% y especificidad ≈ 80%: el “modelo” no tiene poder predictivo; detecta tantos defaults como los que acertaría al azar.
+Como `model_pred` es aleatorio (independiente de la realidad), la sensibilidad ≈ 20 % y la especificidad ≈ 80 % salen directamente de `p=[0.8, 0.2]` en `np.random.choice`: el vector no depende de la realidad, así que acierta el 20 % de los defaults y el 80 % de los no defaults. El “modelo” no tiene poder predictivo.
+
+Nota de terminología: el enunciado llama “precisión” a (TP+TN)/total, que en rigor es la **exactitud (accuracy)**; no es la precisión TP/(TP+FP). La exactitud de 73.67 % es incluso **peor** que la del clasificador trivial “todos 0” (nadie en default), que acertaría 88.78 % en el test (11.22 % de defaults): con clases desbalanceadas, la exactitud sola engaña.
